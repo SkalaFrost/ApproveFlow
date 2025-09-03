@@ -532,9 +532,9 @@ function PreviewComponent({
         return (
           <div
             ref={tableRef}
-            className="border rounded-md overflow-hidden h-full"
+            className="border-2 border-dashed border-gray-300 rounded-lg p-4 h-full bg-white"
           >
-            <table className="w-full">
+            <table className="w-full border-separate border-spacing-0">
               <thead className="bg-muted">
                 <tr>
                   {currentColumns.map((col) => (
@@ -591,7 +591,7 @@ function PreviewComponent({
               </thead>
               <tbody>
                 {currentRows.map((row, rowIndex) => (
-                  <tr key={rowIndex} className="border-t">
+                  <tr key={rowIndex}>
                     {currentColumns.map((col) => (
                       <td
                         key={col.id}
