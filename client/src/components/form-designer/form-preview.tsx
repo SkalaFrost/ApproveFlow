@@ -522,13 +522,24 @@ function PreviewComponent({
           updateTableData(newColumns, newRows);
         };
 
+        const borderWidth = component.borderWidth || 1;
+        const showBorders = component.showBorders !== false;
+        const borderStyle = showBorders ? `${borderWidth}px dashed #d1d5db` : 'none';
+        
         return (
           <div ref={tableRef} className="inline-block">
             {/* Header Row - conditional */}
             {component.showHeader !== false && (
               <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, auto)` }}>
-                {currentColumns.map((col) => (
-                  <div key={col.id} className="text-sm font-medium">
+                {currentColumns.map((col, colIndex) => (
+                  <div 
+                    key={col.id} 
+                    className="text-sm font-medium p-2" 
+                    style={{
+                      borderRight: colIndex < currentColumns.length - 1 ? borderStyle : 'none',
+                      borderBottom: showBorders ? borderStyle : 'none'
+                    }}
+                  >
                     {editingColumn === col.id ? (
                       <input
                         type="text"
@@ -566,8 +577,15 @@ function PreviewComponent({
             {/* Data Rows */}
             {currentRows.map((row, rowIndex) => (
               <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, auto)` }}>
-                {currentColumns.map((col) => (
-                  <div key={col.id} className="text-sm">
+                {currentColumns.map((col, colIndex) => (
+                  <div 
+                    key={col.id} 
+                    className="text-sm p-2"
+                    style={{
+                      borderRight: colIndex < currentColumns.length - 1 ? borderStyle : 'none',
+                      borderBottom: rowIndex < currentRows.length - 1 ? borderStyle : 'none'
+                    }}
+                  >
                     {editingCell?.row === rowIndex && editingCell?.col === col.id ? (
                       <input
                         type="text"

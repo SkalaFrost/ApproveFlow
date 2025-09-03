@@ -213,6 +213,33 @@ export default function FormComponentProperties({
                   <Label htmlFor="showHeader">Show Header Row</Label>
                 </div>
               </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="showBorders"
+                    checked={component.showBorders !== false}
+                    onCheckedChange={(checked: boolean) => onUpdate({ showBorders: checked })}
+                  />
+                  <Label htmlFor="showBorders">Show Cell Borders</Label>
+                </div>
+              </div>
+              {component.showBorders !== false && (
+                <div>
+                  <Label htmlFor="borderWidth">Border Width (px)</Label>
+                  <Input
+                    id="borderWidth"
+                    type="number"
+                    min="1"
+                    max="5"
+                    value={component.borderWidth || 1}
+                    onChange={(e) => {
+                      const width = parseInt(e.target.value) || 1;
+                      onUpdate({ borderWidth: width });
+                    }}
+                    className="mt-1"
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}

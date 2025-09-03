@@ -21,6 +21,8 @@ export interface FormComponent {
   tableColumns?: number;
   tableRows?: number;
   showHeader?: boolean;
+  borderWidth?: number;
+  showBorders?: boolean;
   // Chart specific properties
   chartType?: 'bar' | 'line' | 'pie' | 'area';
   dataSource?: string; // ID of table component to use as data source
