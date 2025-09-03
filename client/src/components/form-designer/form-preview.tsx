@@ -528,42 +528,44 @@ function PreviewComponent({
 
         return (
           <div ref={tableRef} className="inline-block">
-            {/* Header Row */}
-            <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, auto)` }}>
-              {currentColumns.map((col) => (
-                <div key={col.id} className="text-sm font-medium">
-                  {editingColumn === col.id ? (
-                    <input
-                      type="text"
-                      defaultValue={col.label}
-                      className="bg-transparent border-none outline-none w-full"
-                      onBlur={(e) => handleColumnEdit(col.id, e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          handleColumnEdit(col.id, e.currentTarget.value);
-                        }
-                        if (e.key === "Escape") {
-                          setEditingColumn(null);
-                        }
-                      }}
-                      autoFocus
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                  ) : (
-                    <span
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEditingColumn(col.id);
-                      }}
-                      className="cursor-pointer hover:bg-muted/50 px-1 py-1 rounded"
-                      title="Click to edit column name"
-                    >
-                      {col.label}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
+            {/* Header Row - conditional */}
+            {component.showHeader !== false && (
+              <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, auto)` }}>
+                {currentColumns.map((col) => (
+                  <div key={col.id} className="text-sm font-medium">
+                    {editingColumn === col.id ? (
+                      <input
+                        type="text"
+                        defaultValue={col.label}
+                        className="bg-transparent border-none outline-none w-full"
+                        onBlur={(e) => handleColumnEdit(col.id, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleColumnEdit(col.id, e.currentTarget.value);
+                          }
+                          if (e.key === "Escape") {
+                            setEditingColumn(null);
+                          }
+                        }}
+                        autoFocus
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingColumn(col.id);
+                        }}
+                        className="cursor-pointer hover:bg-muted/50 px-1 py-1 rounded"
+                        title="Click to edit column name"
+                      >
+                        {col.label}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
             
             {/* Data Rows */}
             {currentRows.map((row, rowIndex) => (

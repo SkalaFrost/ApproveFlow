@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { X, Plus, Trash2 } from 'lucide-react';
 import type { FormComponent } from '@/types/form-designer';
 
@@ -201,6 +202,16 @@ export default function FormComponentProperties({
                   }}
                   className="mt-1"
                 />
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox 
+                    id="showHeader"
+                    checked={component.showHeader !== false}
+                    onCheckedChange={(checked: boolean) => onUpdate({ showHeader: checked })}
+                  />
+                  <Label htmlFor="showHeader">Show Header Row</Label>
+                </div>
               </div>
             </div>
           </div>

@@ -20,6 +20,7 @@ export interface FormComponent {
   rows?: Record<string, any>[];
   tableColumns?: number;
   tableRows?: number;
+  showHeader?: boolean;
   // Chart specific properties
   chartType?: 'bar' | 'line' | 'pie' | 'area';
   dataSource?: string; // ID of table component to use as data source
