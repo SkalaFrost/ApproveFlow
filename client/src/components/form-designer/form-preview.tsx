@@ -529,7 +529,7 @@ function PreviewComponent({
         return (
           <div ref={tableRef} className="inline-block">
             {/* Header Row */}
-            <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, minmax(120px, 1fr))` }}>
+            <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, auto) auto` }}>
               {currentColumns.map((col) => (
                 <div key={col.id} className="text-sm font-medium">
                   {editingColumn === col.id ? (
@@ -579,7 +579,7 @@ function PreviewComponent({
             
             {/* Data Rows */}
             {currentRows.map((row, rowIndex) => (
-              <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, minmax(120px, 1fr))` }}>
+              <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, auto) auto` }}>
                 {currentColumns.map((col) => (
                   <div key={col.id} className="text-sm">
                     {editingCell?.row === rowIndex && editingCell?.col === col.id ? (
@@ -697,7 +697,7 @@ function PreviewComponent({
           ...style,
           ...(component.type === 'table' ? { width: 'auto', height: 'auto' } : { width: component.size.width, height: component.size.height }),
         }}
-        className={`form-component absolute bg-white border-2 border-dashed rounded p-3 transition-colors ${
+        className={`form-component absolute bg-white border-2 border-dashed rounded ${component.type === 'table' ? '' : 'p-3'} transition-colors ${
           isSelected
             ? "border-primary bg-primary/10 z-20 shadow-lg"
             : isMultiSelected
