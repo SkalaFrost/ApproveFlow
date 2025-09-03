@@ -482,20 +482,20 @@ function PreviewComponent({
         const currentColumns = component.columns || defaultColumns;
         const currentRows = component.rows || defaultRows;
 
-        // Auto-resize table container only if it doesn't have explicit size
+        // Auto-resize table container to match content exactly
         const autoResizeTable = () => {
           if (tableRef.current && !isResizing) {
-            // Calculate total height from row heights
+            // Calculate exact total height from row heights
             const totalHeight = rowHeights.reduce((sum, height) => sum + height, 0);
-            // Calculate total width from column widths  
+            // Calculate exact total width from column widths  
             const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
             
-            // Update component size to match table content
+            // Update component size to exactly match table content
             if (onUpdateComponent) {
               onUpdateComponent(component.id, {
                 size: {
-                  width: Math.max(totalWidth, component.size.width || totalWidth),
-                  height: Math.max(totalHeight, component.size.height || totalHeight)
+                  width: totalWidth,
+                  height: totalHeight
                 }
               });
             }
@@ -631,7 +631,7 @@ function PreviewComponent({
         const borderStyle = showBorders ? '1px dashed #d1d5db' : 'none';
         
         return (
-          <div ref={tableRef} className="inline-block relative">
+          <div ref={tableRef} className="inline-block relative w-full h-full">
             {/* Header Row - conditional */}
             {component.showHeader !== false && (
               <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: columnWidths.map(w => `${w}px`).join(' ') }}>
@@ -839,7 +839,7 @@ function PreviewComponent({
             minHeight: 'auto' 
           } : { width: component.size.width, height: component.size.height }),
         }}
-        className={`form-component absolute bg-white border-2 border-dashed rounded ${component.type === 'table' ? '' : 'p-3'} transition-colors ${
+        className={`form-component absolute bg-white border-2 border-dashed rounded ${component.type === 'table' ? 'overflow-hidden' : 'p-3'} transition-colors ${
           isSelected
             ? "border-primary bg-primary/10 z-20 shadow-lg"
             : isMultiSelected
