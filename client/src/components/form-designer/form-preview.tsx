@@ -638,7 +638,7 @@ function PreviewComponent({
                 {currentColumns.map((col, colIndex) => (
                   <div 
                     key={col.id} 
-                    className="text-sm font-medium p-2"
+                    className="text-sm font-medium p-2 break-words overflow-wrap-anywhere"
                     style={{
                       height: `${rowHeights[0]}px`,
                       borderRight: colIndex < currentColumns.length - 1 ? borderStyle : 'none',
@@ -685,7 +685,7 @@ function PreviewComponent({
                 {currentColumns.map((col, colIndex) => (
                   <div 
                     key={col.id} 
-                    className="text-sm p-2"
+                    className="text-sm p-2 break-words overflow-wrap-anywhere"
                     style={{
                       height: `${rowHeights[component.showHeader !== false ? rowIndex + 1 : rowIndex]}px`,
                       borderRight: colIndex < currentColumns.length - 1 ? borderStyle : 'none',
@@ -715,7 +715,7 @@ function PreviewComponent({
                           e.stopPropagation();
                           setEditingCell({ row: rowIndex, col: col.id });
                         }}
-                        className="cursor-pointer hover:bg-muted/50 px-1 py-1 rounded block min-h-[20px]"
+                        className="cursor-pointer hover:bg-muted/50 px-1 py-1 rounded block min-h-[20px] break-words overflow-wrap-anywhere"
                         title="Click to edit cell"
                       >
                         {(row as any)[col.id] || "-"}
