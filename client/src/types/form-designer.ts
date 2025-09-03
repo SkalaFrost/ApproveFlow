@@ -18,6 +18,8 @@ export interface FormComponent {
     type: 'text' | 'number' | 'date';
   }[];
   rows?: Record<string, any>[];
+  tableColumns?: number;
+  tableRows?: number;
   // Chart specific properties
   chartType?: 'bar' | 'line' | 'pie' | 'area';
   dataSource?: string; // ID of table component to use as data source

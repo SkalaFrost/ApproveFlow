@@ -158,41 +158,50 @@ export default function FormComponentProperties({
         {component.type === 'table' && (
           <div className="space-y-3">
             <Label className="text-sm font-medium">Table Configuration</Label>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Columns</Label>
-                <Button size="sm" variant="outline" onClick={() => {
-                  const newColumns = [...(component.columns || []), { id: `col${Date.now()}`, label: 'New Column', type: 'text' as const }];
-                  onUpdate({ columns: newColumns });
-                }}>
-                  <Plus className="w-3 h-3 mr-1" />
-                  Add Column
-                </Button>
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="tableColumns">Number of Columns</Label>
+                <Input
+                  id="tableColumns"
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={component.tableColumns || 3}
+                  onChange={(e) => {
+                    const numCols = parseInt(e.target.value) || 3;
+                    const newColumns = Array.from({ length: numCols }, (_, i) => ({
+                      id: `col${i + 1}`,
+                      label: `Column ${i + 1}`,
+                      type: 'text' as const
+                    }));
+                    onUpdate({ tableColumns: numCols, columns: newColumns });
+                  }}
+                  className="mt-1"
+                />
               </div>
-              {(component.columns || []).map((col, index) => (
-                <div key={col.id} className="flex items-center gap-2 p-2 border rounded">
-                  <Input
-                    value={col.label}
-                    onChange={(e) => {
-                      const newColumns = [...(component.columns || [])];
-                      newColumns[index] = { ...col, label: e.target.value };
-                      onUpdate({ columns: newColumns });
-                    }}
-                    placeholder="Column name"
-                    className="flex-1"
-                  />
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => {
-                      const newColumns = (component.columns || []).filter((_, i) => i !== index);
-                      onUpdate({ columns: newColumns });
-                    }}
-                  >
-                    <Trash2 className="w-3 h-3" />
-                  </Button>
-                </div>
-              ))}
+              <div>
+                <Label htmlFor="tableRows">Number of Rows</Label>
+                <Input
+                  id="tableRows"
+                  type="number"
+                  min="1"
+                  max="20"
+                  value={component.tableRows || 2}
+                  onChange={(e) => {
+                    const numRows = parseInt(e.target.value) || 2;
+                    const cols = component.columns || [];
+                    const newRows = Array.from({ length: numRows }, (_, rowIndex) => {
+                      const row: any = {};
+                      cols.forEach((col, colIndex) => {
+                        row[col.id] = `Row ${rowIndex + 1} Data ${colIndex + 1}`;
+                      });
+                      return row;
+                    });
+                    onUpdate({ tableRows: numRows, rows: newRows });
+                  }}
+                  className="mt-1"
+                />
+              </div>
             </div>
           </div>
         )}

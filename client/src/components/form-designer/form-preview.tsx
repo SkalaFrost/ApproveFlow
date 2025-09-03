@@ -529,7 +529,7 @@ function PreviewComponent({
         return (
           <div ref={tableRef} className="inline-block">
             {/* Header Row */}
-            <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, auto) auto` }}>
+            <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, auto)` }}>
               {currentColumns.map((col) => (
                 <div key={col.id} className="text-sm font-medium">
                   {editingColumn === col.id ? (
@@ -563,23 +563,11 @@ function PreviewComponent({
                   )}
                 </div>
               ))}
-              <div className="text-sm font-medium">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addNewColumn();
-                  }}
-                  className="text-blue-500 hover:text-blue-700 text-xs"
-                  title="Add new column"
-                >
-                  + Add Column
-                </button>
-              </div>
             </div>
             
             {/* Data Rows */}
             {currentRows.map((row, rowIndex) => (
-              <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, auto) auto` }}>
+              <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, auto)` }}>
                 {currentColumns.map((col) => (
                   <div key={col.id} className="text-sm">
                     {editingCell?.row === rowIndex && editingCell?.col === col.id ? (
@@ -613,23 +601,8 @@ function PreviewComponent({
                     )}
                   </div>
                 ))}
-                <div className="text-sm"></div>
               </div>
             ))}
-            
-            {/* Add Row Button */}
-            <div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  addNewRow();
-                }}
-                className="text-blue-500 hover:text-blue-700 text-xs w-full text-left"
-                title="Add new row"
-              >
-                + Add Row
-              </button>
-            </div>
           </div>
         );
       case "chart":
