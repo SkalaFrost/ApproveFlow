@@ -522,23 +522,25 @@ function PreviewComponent({
           updateTableData(newColumns, newRows);
         };
 
-        const borderWidth = component.borderWidth || 1;
+        const columnWidth = component.columnWidth || 120;
+        const rowHeight = component.rowHeight || 40;
         const showBorders = component.showBorders !== false;
-        const borderStyle = showBorders ? `${borderWidth}px dashed #d1d5db` : 'none';
+        const borderStyle = showBorders ? '1px dashed #d1d5db' : 'none';
         
         return (
           <div ref={tableRef} className="inline-block">
             {/* Header Row - conditional */}
             {component.showHeader !== false && (
-              <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, auto)` }}>
+              <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, ${columnWidth}px)` }}>
                 {currentColumns.map((col, colIndex) => (
                   <div 
                     key={col.id} 
-                    className="text-sm font-medium p-2" 
+                    className="text-sm font-medium p-2"
                     style={{
+                      height: `${rowHeight}px`,
                       borderRight: colIndex < currentColumns.length - 1 ? borderStyle : 'none',
                       borderBottom: showBorders ? borderStyle : 'none'
-                    }}
+                    }} 
                   >
                     {editingColumn === col.id ? (
                       <input
@@ -576,12 +578,13 @@ function PreviewComponent({
             
             {/* Data Rows */}
             {currentRows.map((row, rowIndex) => (
-              <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, auto)` }}>
+              <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, ${columnWidth}px)` }}>
                 {currentColumns.map((col, colIndex) => (
                   <div 
                     key={col.id} 
                     className="text-sm p-2"
                     style={{
+                      height: `${rowHeight}px`,
                       borderRight: colIndex < currentColumns.length - 1 ? borderStyle : 'none',
                       borderBottom: rowIndex < currentRows.length - 1 ? borderStyle : 'none'
                     }}
