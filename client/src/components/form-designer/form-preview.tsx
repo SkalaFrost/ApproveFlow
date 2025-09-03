@@ -222,7 +222,7 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.value)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
-            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none cursor-move pointer-events-none select-none"
+            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
           />
         );
       case "textarea":
@@ -234,7 +234,7 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.value)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
-            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none resize-none cursor-move pointer-events-none select-none"
+            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none resize-none"
           />
         );
       case "number":
@@ -247,7 +247,7 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.value)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
-            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none cursor-move pointer-events-none select-none"
+            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
           />
         );
       case "date":
@@ -259,7 +259,7 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.value)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
-            className="border-0 rounded-none bg-transparent w-full h-full focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none text-center flex items-center justify-center cursor-move pointer-events-none select-none [&::-webkit-calendar-picker-indicator]:bg-transparent [&::-webkit-calendar-picker-indicator]:cursor-move"
+            className="border-0 rounded-none bg-transparent w-full h-full focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none text-center flex items-center justify-center [&::-webkit-calendar-picker-indicator]:bg-transparent"
           />
         );
       case "select":
@@ -269,7 +269,7 @@ function PreviewComponent({
             value={fieldValues[component.id] || ''}
             onValueChange={handleFieldChange}
           >
-            <SelectTrigger onClick={handleFieldClick} className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none cursor-move pointer-events-none select-none">
+            <SelectTrigger onClick={handleFieldClick} className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none">
               <SelectValue placeholder={component.placeholder || "Select an option"} />
             </SelectTrigger>
             <SelectContent>
@@ -332,7 +332,7 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.files?.[0] || null)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
-            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none cursor-move pointer-events-none select-none"
+            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
           />
         );
       case "table":
@@ -440,10 +440,15 @@ function PreviewComponent({
       </Button>
 
       <div 
-        className="absolute inset-0 pointer-events-none cursor-move" 
-        onMouseDown={handleMouseDown}
+        className="absolute inset-0 cursor-move" 
+        onMouseDown={(e) => {
+          // Chỉ drag khi click vào vùng trống, không phải input
+          if (e.target === e.currentTarget) {
+            handleMouseDown(e);
+          }
+        }}
       >
-        <div className="pointer-events-auto w-full h-full">
+        <div className="w-full h-full">
           {renderInput()}
         </div>
       </div>
