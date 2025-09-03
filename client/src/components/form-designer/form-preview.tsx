@@ -839,7 +839,7 @@ function PreviewComponent({
             minHeight: 'auto' 
           } : { width: component.size.width, height: component.size.height }),
         }}
-        className={`form-component absolute bg-white border-2 border-dashed rounded ${component.type === 'table' ? 'overflow-hidden' : 'p-3'} transition-colors ${
+        className={`form-component absolute bg-white border-2 border-dashed rounded ${component.type === 'table' ? '' : 'p-3'} transition-colors ${
           isSelected
             ? "border-primary bg-primary/10 z-20 shadow-lg"
             : isMultiSelected
