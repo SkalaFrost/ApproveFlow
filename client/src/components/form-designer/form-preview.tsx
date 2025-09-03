@@ -62,7 +62,7 @@ function PreviewComponent({
 }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
-  
+
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: `component-${component.id}`,
     data: {
@@ -79,7 +79,7 @@ function PreviewComponent({
       e.stopPropagation();
       return;
     }
-    
+
     setIsDragging(true);
     const rect = e.currentTarget.getBoundingClientRect();
     // ⚡ quan trọng: chia cho zoom để offset đúng khi zoom khác 100%
@@ -91,7 +91,7 @@ function PreviewComponent({
     const handleMouseMove = (e: MouseEvent) => {
       const canvas = document.querySelector('[data-testid="form-preview-area"]');
       if (!canvas) return;
-      
+
       const canvasRect = canvas.getBoundingClientRect();
       const newX = Math.max(0, (e.clientX - canvasRect.left) / zoom - offsetX);
       const newY = Math.max(0, (e.clientY - canvasRect.top) / zoom - offsetY);
@@ -115,7 +115,7 @@ function PreviewComponent({
       e.stopPropagation();
       return;
     }
-    
+
     e.stopPropagation();
     setIsResizing(true);
     const startX = e.clientX;
@@ -128,7 +128,7 @@ function PreviewComponent({
     const handleResizeMove = (e: MouseEvent) => {
       const deltaX = (e.clientX - startX) / zoom;
       const deltaY = (e.clientY - startY) / zoom;
-      
+
       let newWidth = startWidth;
       let newHeight = startHeight;
       let newX = startPosX;
@@ -253,7 +253,7 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.value)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
-            className="border-0 rounded-none bg-transparent w-full h-full focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none [&::-webkit-calendar-picker-indicator]:bg-transparent"
+            className="border-0 rounded-none bg-transparent w-full h-full focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none text-center flex items-center justify-center [&::-webkit-calendar-picker-indicator]:bg-transparent [&::-webkit-calendar-picker-indicator]:cursor-pointer"
           />
         );
       case "select":
@@ -437,8 +437,8 @@ function PreviewComponent({
           <Trash2 className="w-3 h-3 text-red-500" />
         </Button>
       </div>
-      
-      <div className="absolute inset-0 top-6 flex items-center px-3">
+
+      <div className="absolute inset-0 top-6 flex items-center justify-center px-3">
         {renderInput()}
       </div>
 
@@ -462,7 +462,7 @@ function PreviewComponent({
             className="absolute -bottom-1 -right-1 w-3 h-3 bg-white border-2 border-cyan-400 rounded-full cursor-se-resize"
             onMouseDown={(e) => handleResizeMouseDown(e, 'se')}
           />
-          
+
           {/* Edge handles */}
           <div
             className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border-2 border-cyan-400 rounded-full cursor-n-resize"
@@ -538,7 +538,7 @@ export default function FormPreview({
 
   const handleMoveComponent = (id: string, x: number, y: number) => {
     if (!onUpdateComponent) return;
-    
+
     const updatedComponents = components.map(comp => 
       comp.id === id 
         ? { ...comp, position: { x, y } }
@@ -549,7 +549,7 @@ export default function FormPreview({
 
   const handleResizeComponent = (id: string, width: number, height: number) => {
     if (!onUpdateComponent) return;
-    
+
     const updatedComponents = components.map(comp => 
       comp.id === id 
         ? { ...comp, size: { width, height } }
@@ -560,7 +560,7 @@ export default function FormPreview({
 
   const handleResizeAndMoveComponent = (id: string, x: number, y: number, width: number, height: number) => {
     if (!onUpdateComponent) return;
-    
+
     const updatedComponents = components.map(comp => 
       comp.id === id 
         ? { ...comp, position: { x, y }, size: { width, height } }
@@ -608,7 +608,7 @@ export default function FormPreview({
                     />
                   ))
                 )}
-                
+
                 {/* Selection Box */}
                 {isSelecting && selectionBox && (
                   <div
@@ -668,7 +668,7 @@ export default function FormPreview({
                     }
                   />
                 ))}
-                
+
                 {/* Selection Box */}
                 {isSelecting && selectionBox && (
                   <div
