@@ -81,7 +81,11 @@ function PreviewComponent({
     }
 
     setIsDragging(true);
-    const rect = e.currentTarget.getBoundingClientRect();
+    // Tìm component container thực tế thay vì current target
+    const componentElement = e.currentTarget.closest('.form-component') as HTMLElement;
+    if (!componentElement) return;
+    
+    const rect = componentElement.getBoundingClientRect();
     // ⚡ quan trọng: chia cho zoom để offset đúng khi zoom khác 100%
     const offsetX = (e.clientX - rect.left) / zoom;
     const offsetY = (e.clientY - rect.top) / zoom;
