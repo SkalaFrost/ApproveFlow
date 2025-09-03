@@ -452,20 +452,24 @@ function PreviewComponent({
         // Auto-resize table container
         const autoResizeTable = () => {
           if (tableRef.current) {
-            const tableHeight = tableRef.current.scrollHeight;
+            // Calculate total height from row heights
+            const totalHeight = rowHeights.reduce((sum, height) => sum + height, 0);
+            // Calculate total width from column widths
+            const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+            
             const container = tableRef.current.closest(
               ".form-component",
             ) as HTMLElement;
             if (container) {
-              container.style.height = tableHeight + "px";
-              container.style.width = "auto";
+              container.style.height = totalHeight + "px";
+              container.style.width = totalWidth + "px";
             }
           }
         };
 
         React.useEffect(() => {
           autoResizeTable();
-        }, [component.columns, component.rows]);
+        }, [component.columns, component.rows, component.columnWidths, component.rowHeights]);
 
         // Update component data (simplified - just update the component directly)
         const updateTableData = (newColumns?: any[], newRows?: any[]) => {
