@@ -770,37 +770,9 @@ function PreviewComponent({
           </div>
         );
       case "chart":
-        const chartRef = React.useRef<HTMLDivElement>(null);
-
-        // Auto-resize chart container
-        const autoResizeChart = () => {
-          if (chartRef.current) {
-            const chartContent = chartRef.current.scrollHeight;
-            const newHeight = Math.max(
-              chartContent + 24,
-              200,
-              component.size.height,
-            ); // Min 200px + padding
-
-            const container = chartRef.current.closest(
-              ".form-component",
-            ) as HTMLElement;
-            if (container) {
-              container.style.height = newHeight + "px";
-            }
-          }
-        };
-
-        React.useEffect(() => {
-          autoResizeChart();
-        }, [component.chartType, component.dataSource]);
-
         return (
-          <div
-            ref={chartRef}
-            className="border rounded-md p-4 bg-muted/20 h-full min-h-[200px] flex items-center justify-center"
-          >
-            <div className="text-center">
+          <div className="w-full h-full flex items-center justify-center text-center">
+            <div>
               <BarChart3 className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
                 {component.chartType || "Bar"} Chart
@@ -832,14 +804,14 @@ function PreviewComponent({
         ref={setNodeRef}
         style={{
           ...style,
-          ...(component.type === 'table' ? { 
+          ...(component.type === 'table' || component.type === 'chart' ? { 
             width: component.size.width, 
             height: component.size.height,
             minWidth: 'auto',
             minHeight: 'auto' 
           } : { width: component.size.width, height: component.size.height }),
         }}
-        className={`form-component absolute bg-white border-2 border-dashed rounded ${component.type === 'table' ? '' : 'p-3'} transition-colors ${
+        className={`form-component absolute bg-white border-2 border-dashed rounded ${component.type === 'table' || component.type === 'chart' ? '' : 'p-3'} transition-colors ${
           isSelected
             ? "border-primary bg-primary/10 z-20 shadow-lg"
             : isMultiSelected
