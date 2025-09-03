@@ -417,15 +417,20 @@ function PreviewComponent({
         );
       case "table":
         const tableRef = React.useRef<HTMLDivElement>(null);
-        const [editingCell, setEditingCell] = React.useState<{row: number, col: string} | null>(null);
-        const [editingColumn, setEditingColumn] = React.useState<string | null>(null);
-        
+        const [editingCell, setEditingCell] = React.useState<{
+          row: number;
+          col: string;
+        } | null>(null);
+        const [editingColumn, setEditingColumn] = React.useState<string | null>(
+          null,
+        );
+
         const defaultColumns = [
           { id: "col1", label: "Column 1", type: "text" },
           { id: "col2", label: "Column 2", type: "text" },
           { id: "col3", label: "Column 3", type: "text" },
         ];
-        
+
         const defaultRows = [
           {
             col1: "Row 1 Data 1",
@@ -438,7 +443,7 @@ function PreviewComponent({
             col3: "Row 2 Data 3",
           },
         ];
-        
+
         const currentColumns = component.columns || defaultColumns;
         const currentRows = component.rows || defaultRows;
 
@@ -466,7 +471,7 @@ function PreviewComponent({
         React.useEffect(() => {
           autoResizeTable();
         }, [component.columns, component.rows]);
-        
+
         // Update component data (simplified - just update the component directly)
         const updateTableData = (newColumns?: any[], newRows?: any[]) => {
           // For now, we'll just store the data in component state
@@ -474,39 +479,53 @@ function PreviewComponent({
           component.columns = newColumns || component.columns;
           component.rows = newRows || component.rows;
         };
-        
+
         // Edit column name
         const handleColumnEdit = (columnId: string, newLabel: string) => {
-          const newColumns = currentColumns.map(col => 
-            col.id === columnId ? { ...col, label: newLabel } : col
+          const newColumns = currentColumns.map((col) =>
+            col.id === columnId ? { ...col, label: newLabel } : col,
           );
           updateTableData(newColumns, currentRows);
           setEditingColumn(null);
         };
-        
+
         // Edit cell data
-        const handleCellEdit = (rowIndex: number, columnId: string, newValue: string) => {
+        const handleCellEdit = (
+          rowIndex: number,
+          columnId: string,
+          newValue: string,
+        ) => {
           const newRows = [...currentRows];
           newRows[rowIndex] = { ...newRows[rowIndex], [columnId]: newValue };
           updateTableData(currentColumns, newRows);
           setEditingCell(null);
         };
-        
+
         // Add new row
         const addNewRow = () => {
           const newRow: any = {};
-          currentColumns.forEach(col => {
+          currentColumns.forEach((col) => {
             newRow[col.id] = `New ${col.label}`;
           });
           const newRows = [...currentRows, newRow];
           updateTableData(currentColumns, newRows);
         };
-        
+
         // Add new column
         const addNewColumn = () => {
           const newColId = `col${currentColumns.length + 1}`;
-          const newColumns = [...currentColumns, { id: newColId, label: `Column ${currentColumns.length + 1}`, type: "text" }];
-          const newRows = currentRows.map(row => ({ ...row, [newColId]: "New Data" }));
+          const newColumns = [
+            ...currentColumns,
+            {
+              id: newColId,
+              label: `Column ${currentColumns.length + 1}`,
+              type: "text",
+            },
+          ];
+          const newRows = currentRows.map((row) => ({
+            ...row,
+            [newColId]: "New Data",
+          }));
           updateTableData(newColumns, newRows);
         };
 
@@ -528,7 +547,9 @@ function PreviewComponent({
                           type="text"
                           defaultValue={col.label}
                           className="bg-transparent border-none outline-none w-full"
-                          onBlur={(e) => handleColumnEdit(col.id, e.target.value)}
+                          onBlur={(e) =>
+                            handleColumnEdit(col.id, e.target.value)
+                          }
                           onKeyDown={(e) => {
                             if (e.key === "Enter") {
                               handleColumnEdit(col.id, e.currentTarget.value);
@@ -541,7 +562,7 @@ function PreviewComponent({
                           onClick={(e) => e.stopPropagation()}
                         />
                       ) : (
-                        <span 
+                        <span
                           onClick={(e) => {
                             e.stopPropagation();
                             setEditingColumn(col.id);
@@ -572,16 +593,26 @@ function PreviewComponent({
                 {currentRows.map((row, rowIndex) => (
                   <tr key={rowIndex} className="border-t">
                     {currentColumns.map((col) => (
-                      <td key={col.id} className="px-4 py-2 text-sm relative group">
-                        {editingCell?.row === rowIndex && editingCell?.col === col.id ? (
+                      <td
+                        key={col.id}
+                        className="px-4 py-2 text-sm relative group"
+                      >
+                        {editingCell?.row === rowIndex &&
+                        editingCell?.col === col.id ? (
                           <input
                             type="text"
                             defaultValue={(row as any)[col.id] || ""}
                             className="bg-transparent border border-gray-300 rounded px-1 py-1 w-full text-sm"
-                            onBlur={(e) => handleCellEdit(rowIndex, col.id, e.target.value)}
+                            onBlur={(e) =>
+                              handleCellEdit(rowIndex, col.id, e.target.value)
+                            }
                             onKeyDown={(e) => {
                               if (e.key === "Enter") {
-                                handleCellEdit(rowIndex, col.id, e.currentTarget.value);
+                                handleCellEdit(
+                                  rowIndex,
+                                  col.id,
+                                  e.currentTarget.value,
+                                );
                               }
                               if (e.key === "Escape") {
                                 setEditingCell(null);
@@ -591,10 +622,10 @@ function PreviewComponent({
                             onClick={(e) => e.stopPropagation()}
                           />
                         ) : (
-                          <span 
+                          <span
                             onClick={(e) => {
                               e.stopPropagation();
-                              setEditingCell({row: rowIndex, col: col.id});
+                              setEditingCell({ row: rowIndex, col: col.id });
                             }}
                             className="cursor-pointer hover:bg-muted/50 px-1 py-1 rounded block min-h-[20px]"
                             title="Click to edit cell"
@@ -684,42 +715,6 @@ function PreviewComponent({
 
   return (
     <div className="relative group">
-      {/* Control buttons - positioned above and outside the container */}
-      <div className="absolute -top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-50">
-        {/* Drag handle */}
-        <Button
-          size="sm"
-          variant="ghost"
-          className="h-7 w-7 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full cursor-grab hover:cursor-grab active:cursor-grabbing shadow-md border border-white"
-          onMouseDown={handleDragMouseDown}
-          data-testid={`button-drag-${component.id}`}
-        >
-          <GripVertical className="w-3 h-3" />
-        </Button>
-        
-        {/* Rotate handle */}
-        <Button
-          size="sm"
-          variant="ghost"
-          className="h-7 w-7 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full cursor-crosshair shadow-md border border-white"
-          onMouseDown={handleRotateMouseDown}
-          data-testid={`button-rotate-${component.id}`}
-        >
-          <RotateCw className="w-3 h-3" />
-        </Button>
-        
-        {/* Remove button */}
-        <Button
-          size="sm"
-          variant="ghost"
-          className="h-7 w-7 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-md border border-white"
-          onClick={onRemove}
-          data-testid={`button-remove-${component.id}`}
-        >
-          <Trash2 className="w-3 h-3" />
-        </Button>
-      </div>
-      
       <div
         ref={setNodeRef}
         style={{
@@ -747,6 +742,42 @@ function PreviewComponent({
         data-testid={`form-component-${component.id}`}
         data-component-id={component.id}
       >
+        {/* Control buttons - positioned above the form field */}
+        <div className="absolute -top-8 right-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+          {/* Drag handle */}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 w-7 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full cursor-grab hover:cursor-grab active:cursor-grabbing shadow-md border border-white"
+            onMouseDown={handleDragMouseDown}
+            data-testid={`button-drag-${component.id}`}
+          >
+            <GripVertical className="w-3 h-3" />
+          </Button>
+
+          {/* Rotate handle */}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 w-7 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full cursor-crosshair shadow-md border border-white"
+            onMouseDown={handleRotateMouseDown}
+            data-testid={`button-rotate-${component.id}`}
+          >
+            <RotateCw className="w-3 h-3" />
+          </Button>
+
+          {/* Remove button */}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 w-7 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-md border border-white"
+            onClick={onRemove}
+            data-testid={`button-remove-${component.id}`}
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
+        </div>
+
         <div
           className={`w-full ${["textarea", "table", "chart"].includes(component.type) ? "min-h-full" : "h-full"}`}
         >
