@@ -438,7 +438,7 @@ function PreviewComponent({
         </Button>
       </div>
       
-      <div className="pt-6">
+      <div className="absolute inset-0 top-6 p-3">
         {renderInput()}
       </div>
 
