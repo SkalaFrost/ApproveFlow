@@ -74,6 +74,8 @@ function PreviewComponent({
   fieldValues = {},
   onFieldChange,
   onUpdateComponent,
+  components,
+  allComponents,
 }: {
   component: FormComponent;
   onRemove: () => void;
@@ -95,6 +97,8 @@ function PreviewComponent({
   fieldValues?: Record<string, any>;
   onFieldChange?: (componentId: string, value: any) => void;
   onUpdateComponent?: (id: string, updates: Partial<FormComponent>) => void;
+  components?: FormComponent[];
+  allComponents?: FormComponent[];
 }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -772,7 +776,7 @@ function PreviewComponent({
       case "chart":
         // Get data from the source table
         const sourceTable = component.dataSource ? 
-          components?.find(comp => comp.id === component.dataSource && comp.type === 'table') : null;
+          components?.find((comp: FormComponent) => comp.id === component.dataSource && comp.type === 'table') : null;
         
         const hasValidData = sourceTable && component.xAxis && component.yAxis && 
           sourceTable.columns && sourceTable.rows;
@@ -780,11 +784,11 @@ function PreviewComponent({
         if (hasValidData) {
           // Render a simple visual chart
           const chartData = sourceTable.rows?.map((row: any) => ({
-            x: row[component.xAxis] || 0,
-            y: parseFloat(row[component.yAxis]) || 0
+            x: row[component.xAxis || ''] || 0,
+            y: parseFloat(row[component.yAxis || '']) || 0
           })) || [];
           
-          const maxValue = Math.max(...chartData.map(d => d.y), 1);
+          const maxValue = Math.max(...chartData.map((d: any) => d.y), 1);
           
           return (
             <div className="w-full h-full p-4">
@@ -797,7 +801,7 @@ function PreviewComponent({
                 {/* Simple Bar Chart Visualization */}
                 {component.chartType === 'bar' || !component.chartType ? (
                   <div className="flex items-end justify-center h-full px-8 pb-8 pt-8 gap-2">
-                    {chartData.slice(0, 8).map((data, index) => (
+                    {chartData.slice(0, 8).map((data: any, index: number) => (
                       <div key={index} className="flex flex-col items-center gap-1 flex-1 min-w-0">
                         <div 
                           className="bg-blue-500 rounded-sm w-full min-h-[4px]"
@@ -836,7 +840,7 @@ function PreviewComponent({
                 {component.chartType || "Bar"} Chart
                 {component.dataSource && (
                   <span className="block text-xs mt-1">
-                    Source: Table {allComponents?.find(c => c.id === component.dataSource)?.label || component.dataSource}
+                    Source: Table {allComponents?.find((c: FormComponent) => c.id === component.dataSource)?.label || component.dataSource}
                   </span>
                 )}
                 {!component.dataSource && (
@@ -1120,6 +1124,8 @@ export default function FormPreview({
                           }))
                         }
                         onUpdateComponent={handleUpdateComponent}
+                        components={components}
+                        allComponents={components}
                       />
                     ))}
 
@@ -1188,6 +1194,8 @@ export default function FormPreview({
                       }))
                     }
                     onUpdateComponent={handleUpdateComponent}
+                    components={components}
+                    allComponents={components}
                   />
                 ))}
 
