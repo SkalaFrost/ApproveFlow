@@ -305,7 +305,7 @@ function PreviewComponent({
         return (
           <Select 
             required={component.required}
-            value={fieldValues[component.id] || ''}
+            value={fieldValues[component.id] || undefined}
             onValueChange={handleFieldChange}
           >
             <SelectTrigger onClick={handleFieldClick} className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none">
