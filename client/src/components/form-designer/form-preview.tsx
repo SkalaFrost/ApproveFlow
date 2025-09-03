@@ -527,9 +527,9 @@ function PreviewComponent({
         };
 
         return (
-          <div ref={tableRef} className="w-full h-full">
+          <div ref={tableRef} className="w-fit h-fit min-w-full">
             {/* Header Row */}
-            <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, 1fr)` }}>
+            <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, minmax(120px, 1fr))` }}>
               {currentColumns.map((col) => (
                 <div key={col.id} className="text-sm font-medium">
                   {editingColumn === col.id ? (
@@ -579,7 +579,7 @@ function PreviewComponent({
             
             {/* Data Rows */}
             {currentRows.map((row, rowIndex) => (
-              <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, 1fr)` }}>
+              <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, minmax(120px, 1fr))` }}>
                 {currentColumns.map((col) => (
                   <div key={col.id} className="text-sm">
                     {editingCell?.row === rowIndex && editingCell?.col === col.id ? (
