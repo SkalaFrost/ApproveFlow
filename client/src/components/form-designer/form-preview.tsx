@@ -529,9 +529,9 @@ function PreviewComponent({
         return (
           <div ref={tableRef} className="w-full h-full">
             {/* Header Row */}
-            <div className="grid gap-0 bg-muted/50 p-2" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, 1fr)` }}>
+            <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, 1fr)` }}>
               {currentColumns.map((col) => (
-                <div key={col.id} className="p-2 text-sm font-medium">
+                <div key={col.id} className="text-sm font-medium">
                   {editingColumn === col.id ? (
                     <input
                       type="text"
@@ -563,7 +563,7 @@ function PreviewComponent({
                   )}
                 </div>
               ))}
-              <div className="p-2 text-sm font-medium">
+              <div className="text-sm font-medium">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -579,9 +579,9 @@ function PreviewComponent({
             
             {/* Data Rows */}
             {currentRows.map((row, rowIndex) => (
-              <div key={rowIndex} className="grid gap-0 p-2" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, 1fr)` }}>
+              <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, 1fr)` }}>
                 {currentColumns.map((col) => (
-                  <div key={col.id} className="p-2 text-sm">
+                  <div key={col.id} className="text-sm">
                     {editingCell?.row === rowIndex && editingCell?.col === col.id ? (
                       <input
                         type="text"
@@ -613,12 +613,12 @@ function PreviewComponent({
                     )}
                   </div>
                 ))}
-                <div className="p-2 text-sm"></div>
+                <div className="text-sm"></div>
               </div>
             ))}
             
             {/* Add Row Button */}
-            <div className="p-2">
+            <div>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
