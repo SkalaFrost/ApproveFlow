@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useDroppable, useDraggable } from "@dnd-kit/core";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -265,18 +265,43 @@ function PreviewComponent({
           />
         );
       case "textarea":
+        const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+        
+        // Auto-resize function
+        const autoResize = (textarea: HTMLTextAreaElement) => {
+          textarea.style.height = 'auto';
+          textarea.style.height = Math.max(textarea.scrollHeight, 60) + 'px';
+          
+          // Update parent container height
+          const container = textarea.closest('.form-component') as HTMLElement;
+          if (container) {
+            const newHeight = Math.max(textarea.scrollHeight + 24, component.size.height); // +24 for padding
+            container.style.height = newHeight + 'px';
+          }
+        };
+        
+        React.useEffect(() => {
+          if (textareaRef.current) {
+            autoResize(textareaRef.current);
+          }
+        }, [fieldValues[component.id]]);
+        
         return (
           <Textarea 
+            ref={textareaRef}
             placeholder={component.placeholder || `Enter ${component.label.toLowerCase()}`}
             required={component.required}
             value={fieldValues[component.id] || ''}
-            onChange={(e) => handleFieldChange(e.target.value)}
+            onChange={(e) => {
+              handleFieldChange(e.target.value);
+              autoResize(e.target);
+            }}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
             className="border-0 rounded-none bg-transparent w-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none resize-none overflow-hidden [&::-webkit-scrollbar]:hidden"
             style={{ 
-              height: 'auto', 
-              minHeight: '100%',
+              height: 'auto',
+              minHeight: '60px',
               scrollbarWidth: 'none',
               msOverflowStyle: 'none'
             }}
@@ -426,8 +451,7 @@ function PreviewComponent({
       style={{
         ...style,
         width: component.size.width,
-        height: component.type === 'textarea' ? 'auto' : component.size.height,
-        minHeight: component.type === 'textarea' ? component.size.height : undefined
+        height: component.size.height
       }}
       className={`form-component group absolute bg-white border-2 border-dashed rounded p-3 transition-colors ${
         isSelected 
