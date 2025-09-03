@@ -39,6 +39,26 @@ interface FormPreviewProps {
 // Danh sách các field type có thể resize
 const RESIZABLE_FIELD_TYPES = ["textarea", "text", "number", "table"];
 
+// Default table structure
+const defaultColumns = [
+  { id: "col1", label: "Column 1", type: "text" },
+  { id: "col2", label: "Column 2", type: "text" },
+  { id: "col3", label: "Column 3", type: "text" },
+];
+
+const defaultRows = [
+  {
+    col1: "Row 1 Data 1",
+    col2: "Row 1 Data 2",
+    col3: "Row 1 Data 3",
+  },
+  {
+    col1: "Row 2 Data 1",
+    col2: "Row 2 Data 2",
+    col3: "Row 2 Data 3",
+  },
+];
+
 function PreviewComponent({
   component,
   onRemove,
@@ -239,16 +259,47 @@ function PreviewComponent({
           break;
       }
 
-      if (positionChanged) {
-        onResizeAndMove(
-          component.id,
-          Math.max(0, newX),
-          Math.max(0, newY),
-          newWidth,
-          newHeight,
-        );
+      // For table components, scale row heights and column widths proportionally
+      if (component.type === 'table' && onUpdateComponent) {
+        const oldWidth = startWidth;
+        const oldHeight = startHeight;
+        const widthRatio = newWidth / oldWidth;
+        const heightRatio = newHeight / oldHeight;
+        
+        // Scale column widths proportionally
+        const cols = component.columns || defaultColumns;
+        const rows = component.rows || defaultRows;
+        const currentColumnWidths = component.columnWidths || cols.map(() => 120);
+        const newColumnWidths = currentColumnWidths.map(width => Math.max(50, width * widthRatio));
+        
+        // Scale row heights proportionally  
+        const currentRowHeights = component.rowHeights || (component.showHeader !== false ? [40, ...rows.map(() => 40)] : rows.map(() => 40));
+        const newRowHeights = currentRowHeights.map(height => Math.max(20, height * heightRatio));
+        
+        const updates: Partial<FormComponent> = {
+          size: { width: newWidth, height: newHeight },
+          columnWidths: newColumnWidths,
+          rowHeights: newRowHeights
+        };
+        
+        if (positionChanged) {
+          updates.position = { x: Math.max(0, newX), y: Math.max(0, newY) };
+        }
+        
+        onUpdateComponent(component.id, updates);
       } else {
-        onResize(component.id, newWidth, newHeight);
+        // Regular component resizing
+        if (positionChanged) {
+          onResizeAndMove(
+            component.id,
+            Math.max(0, newX),
+            Math.max(0, newY),
+            newWidth,
+            newHeight,
+          );
+        } else {
+          onResize(component.id, newWidth, newHeight);
+        }
       }
     };
 
@@ -427,24 +478,6 @@ function PreviewComponent({
           null,
         );
 
-        const defaultColumns = [
-          { id: "col1", label: "Column 1", type: "text" },
-          { id: "col2", label: "Column 2", type: "text" },
-          { id: "col3", label: "Column 3", type: "text" },
-        ];
-
-        const defaultRows = [
-          {
-            col1: "Row 1 Data 1",
-            col2: "Row 1 Data 2",
-            col3: "Row 1 Data 3",
-          },
-          {
-            col1: "Row 2 Data 1",
-            col2: "Row 2 Data 2",
-            col3: "Row 2 Data 3",
-          },
-        ];
 
         const currentColumns = component.columns || defaultColumns;
         const currentRows = component.rows || defaultRows;
