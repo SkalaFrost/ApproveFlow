@@ -685,7 +685,7 @@ function PreviewComponent({
   return (
     <div className="relative group">
       {/* Control buttons - positioned above and outside the container */}
-      <div className="absolute -top-6 -right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+      <div className="absolute -top-4 -right-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-50">
         {/* Drag handle */}
         <Button
           size="sm"
