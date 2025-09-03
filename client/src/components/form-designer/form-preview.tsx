@@ -416,7 +416,7 @@ function PreviewComponent({
           />
         );
       case "table":
-        const tableRef = React.useRef<HTMLTableElement>(null);
+        const tableRef = React.useRef<HTMLDivElement>(null);
         const [editingCell, setEditingCell] = React.useState<{
           row: number;
           col: string;
@@ -530,10 +530,11 @@ function PreviewComponent({
         };
 
         return (
-            <table 
-              ref={tableRef}
-              className="w-full border-separate border-spacing-0 border-2 border-dashed border-gray-300 rounded-lg h-full bg-white"
-            >
+          <div
+            ref={tableRef}
+            className="border-2 border-dashed border-gray-300 rounded-lg p-4 h-full bg-white"
+          >
+            <table className="w-full border-separate border-spacing-0">
               <thead className="bg-muted">
                 <tr>
                   {currentColumns.map((col) => (
@@ -653,6 +654,7 @@ function PreviewComponent({
                 </tr>
               </tbody>
             </table>
+          </div>
         );
       case "chart":
         const chartRef = React.useRef<HTMLDivElement>(null);
