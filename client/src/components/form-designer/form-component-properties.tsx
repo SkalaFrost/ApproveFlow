@@ -228,7 +228,18 @@ export default function FormComponentProperties({
                   <Checkbox 
                     id="showHeader"
                     checked={component.showHeader !== false}
-                    onCheckedChange={(checked: boolean) => onUpdate({ showHeader: checked })}
+                    onCheckedChange={(checked: boolean) => {
+                      // Recalculate row heights when header visibility changes
+                      const defaultRowHeight = 40;
+                      const numRows = component.tableRows || 2;
+                      const totalRows = checked ? numRows + 1 : numRows; // +1 for header if shown
+                      const newRowHeights = Array.from({ length: totalRows }, () => defaultRowHeight);
+                      
+                      onUpdate({ 
+                        showHeader: checked,
+                        rowHeights: newRowHeights
+                      });
+                    }}
                   />
                   <Label htmlFor="showHeader">Show Header Row</Label>
                 </div>
