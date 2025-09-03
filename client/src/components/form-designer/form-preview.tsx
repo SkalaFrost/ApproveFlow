@@ -784,11 +784,12 @@ function PreviewComponent({
         if (hasValidData) {
           // Render a simple visual chart
           const chartData = sourceTable.rows?.map((row: any) => ({
-            x: row[component.xAxis || ''] || 0,
-            y: parseFloat(row[component.yAxis || '']) || 0
+            x: row[component.xAxis || ''] || '0',
+            y: parseFloat(String(row[component.yAxis || ''] || '0')) || 0
           })) || [];
           
           const maxValue = Math.max(...chartData.map((d: any) => d.y), 1);
+          const minValue = Math.min(...chartData.map((d: any) => d.y), 0);
           
           return (
             <div className="w-full h-full p-4">
@@ -803,12 +804,17 @@ function PreviewComponent({
                   <div className="flex items-end justify-center h-full px-8 pb-8 pt-8 gap-2">
                     {chartData.slice(0, 8).map((data: any, index: number) => (
                       <div key={index} className="flex flex-col items-center gap-1 flex-1 min-w-0">
+                        <div className="text-xs text-gray-600 mb-1 font-medium">
+                          {data.y}
+                        </div>
                         <div 
-                          className="bg-blue-500 rounded-sm w-full min-h-[4px]"
-                          style={{ height: `${(data.y / maxValue) * 60}%` }}
+                          className="bg-blue-500 rounded-sm w-full min-h-[8px]"
+                          style={{ 
+                            height: maxValue === minValue ? '40px' : `${Math.max(8, (data.y / maxValue) * 80)}px`
+                          }}
                           title={`${data.x}: ${data.y}`}
                         />
-                        <div className="text-xs text-gray-600 truncate w-full text-center">
+                        <div className="text-xs text-gray-600 truncate w-full text-center mt-1">
                           {String(data.x).slice(0, 8)}
                         </div>
                       </div>
