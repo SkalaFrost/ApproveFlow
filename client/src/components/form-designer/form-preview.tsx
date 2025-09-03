@@ -795,7 +795,7 @@ function PreviewComponent({
             <div className="w-full h-full bg-gray-50 rounded border relative pl-8 pr-4 pt-8 pb-12">
               {/* Chart Title */}
               <div className="absolute top-2 left-2 text-xs font-medium text-gray-600">
-                {component.chartType || "Bar"}
+                {component.chartType || ""}
               </div>
               
               {/* Y-Axis Label */}
@@ -871,7 +871,7 @@ function PreviewComponent({
             <div>
               <BarChart3 className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
-                {component.chartType || "Bar"}
+                {component.chartType || ""}
                 {component.dataSource && (
                   <span className="block text-xs mt-1">
                     Source: Table {allComponents?.find((c: FormComponent) => c.id === component.dataSource)?.label || component.dataSource}
