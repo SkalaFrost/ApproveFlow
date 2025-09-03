@@ -435,8 +435,11 @@ function PreviewComponent({
         <Trash2 className="w-3 h-3" />
       </Button>
 
-      <div className="absolute inset-0 flex items-center justify-center px-3 pointer-events-none cursor-move" onMouseDown={handleMouseDown}>
-        <div className="pointer-events-auto">
+      <div 
+        className="absolute inset-0 pointer-events-none cursor-move" 
+        onMouseDown={handleMouseDown}
+      >
+        <div className="pointer-events-auto w-full h-full">
           {renderInput()}
         </div>
       </div>
