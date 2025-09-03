@@ -175,7 +175,16 @@ export default function FormComponentProperties({
                       label: `Column ${i + 1}`,
                       type: 'text' as const
                     }));
-                    onUpdate({ tableColumns: numCols, columns: newColumns });
+                    
+                    // Update column widths array to match new column count
+                    const defaultColumnWidth = 120;
+                    const newColumnWidths = Array.from({ length: numCols }, () => defaultColumnWidth);
+                    
+                    onUpdate({ 
+                      tableColumns: numCols, 
+                      columns: newColumns,
+                      columnWidths: newColumnWidths
+                    });
                   }}
                   className="mt-1"
                 />
@@ -198,7 +207,18 @@ export default function FormComponentProperties({
                       });
                       return row;
                     });
-                    onUpdate({ tableRows: numRows, rows: newRows });
+                    
+                    // Update row heights array to match new row count
+                    const defaultRowHeight = 40;
+                    const hasHeader = component.showHeader !== false;
+                    const totalRows = hasHeader ? numRows + 1 : numRows; // +1 for header if shown
+                    const newRowHeights = Array.from({ length: totalRows }, () => defaultRowHeight);
+                    
+                    onUpdate({ 
+                      tableRows: numRows, 
+                      rows: newRows,
+                      rowHeights: newRowHeights
+                    });
                   }}
                   className="mt-1"
                 />
