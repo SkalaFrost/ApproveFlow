@@ -792,7 +792,7 @@ function PreviewComponent({
           const minValue = Math.min(...chartData.map((d: any) => d.y), 0);
           
           return (
-            <div className="w-full h-full bg-gray-50 rounded border relative">
+            <div className="w-full h-full bg-gray-50 rounded border relative pl-8 pr-4 pt-8 pb-12">
               {/* Chart Title */}
               <div className="absolute top-2 left-2 text-xs font-medium text-gray-600">
                 {component.chartType || "Bar"}
@@ -803,22 +803,30 @@ function PreviewComponent({
                 {component.yAxis}
               </div>
               
+              {/* Y-Axis Numbers */}
+              {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
+                <div 
+                  key={ratio}
+                  className="absolute left-2 text-xs text-gray-600"
+                  style={{ 
+                    bottom: `${12 + (ratio * (100 - 20))}%`, 
+                    transform: 'translateY(50%)' 
+                  }}
+                >
+                  {Math.round(minValue + (maxValue - minValue) * ratio)}
+                </div>
+              ))}
+              
               {/* Chart Area with Coordinate System */}
               {/* Grid Lines */}
               <div className="relative w-full h-full border-l-2 border-b-2 border-gray-400">
-                {/* Y-Axis Grid Lines and Labels */}
+                {/* Y-Axis Grid Lines */}
                 {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
                   <div key={ratio} className="absolute w-full">
                     <div 
                       className="absolute left-0 w-full border-t border-gray-200"
                       style={{ bottom: `${ratio * 100}%` }}
                     />
-                    <div 
-                      className="absolute -left-6 text-xs text-gray-600"
-                      style={{ bottom: `${ratio * 100}%`, transform: 'translateY(50%)' }}
-                    >
-                      {Math.round(minValue + (maxValue - minValue) * ratio)}
-                    </div>
                   </div>
                 ))}
                 
