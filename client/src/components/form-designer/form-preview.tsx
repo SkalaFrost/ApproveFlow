@@ -438,7 +438,7 @@ function PreviewComponent({
         </Button>
       </div>
       
-      <div className="w-full h-full pt-6 flex items-center justify-center">
+      <div className="pt-6">
         {renderInput()}
       </div>
 
