@@ -273,8 +273,13 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.value)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
-            className="border-0 rounded-none bg-transparent w-full min-h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none resize-none"
-            style={{ height: 'auto', minHeight: '100%' }}
+            className="border-0 rounded-none bg-transparent w-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none resize-none overflow-hidden [&::-webkit-scrollbar]:hidden"
+            style={{ 
+              height: 'auto', 
+              minHeight: '100%',
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none'
+            }}
           />
         );
       case "number":
