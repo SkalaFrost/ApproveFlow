@@ -253,7 +253,7 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.value)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
-            className="border-0 rounded-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-calendar-picker-indicator]:bg-transparent [&::-webkit-datetime-edit]:border-2 [&::-webkit-datetime-edit]:border-dashed [&::-webkit-datetime-edit]:border-blue-400 [&::-webkit-datetime-edit]:px-3 [&::-webkit-datetime-edit]:py-2 [&::-webkit-datetime-edit]:rounded-none"
+            className="border-2 border-dashed border-blue-400 rounded-none bg-transparent px-3 py-2 focus-visible:ring-0 focus-visible:ring-offset-0 [&::-webkit-calendar-picker-indicator]:bg-transparent [&::-webkit-datetime-edit]:border-0 [&::-webkit-datetime-edit]:p-0"
           />
         );
       case "select":
