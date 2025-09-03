@@ -773,11 +773,7 @@ function PreviewComponent({
           </Button>
         </div>
 
-        <div
-          className={`w-full ${["textarea", "table", "chart"].includes(component.type) ? "min-h-full" : "h-full"}`}
-        >
-          {renderInput()}
-        </div>
+        {renderInput()}
 
         {/* Resize Handles - chỉ hiển thị cho các field có thể resize */}
         {RESIZABLE_FIELD_TYPES.includes(component.type) && (
