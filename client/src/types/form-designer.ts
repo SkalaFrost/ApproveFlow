@@ -31,6 +31,7 @@ export interface FormComponent {
     width: number;
     height: number;
   };
+  rotation?: number;
 }
 
 export interface FormSchema {

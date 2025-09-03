@@ -39,6 +39,7 @@ function PreviewComponent({
   onMove,
   onResize,
   onResizeAndMove,
+  onRotate,
   onClick,
   isSelected,
   isMultiSelected,
@@ -629,6 +630,17 @@ export default function FormPreview({
     onUpdateComponent(updatedComponents);
   };
 
+  const handleRotateComponent = (id: string, rotation: number) => {
+    if (!onUpdateComponent) return;
+
+    const updatedComponents = components.map(comp => 
+      comp.id === id 
+        ? { ...comp, rotation }
+        : comp
+    );
+    onUpdateComponent(updatedComponents);
+  };
+
   return (
     <Card className="h-full flex flex-col">
       <div className="flex-1 p-3">
@@ -657,6 +669,7 @@ export default function FormPreview({
                       onMove={handleMoveComponent}
                       onResize={handleResizeComponent}
                       onResizeAndMove={handleResizeAndMoveComponent}
+                      onRotate={handleRotateComponent}
                       onClick={onComponentClick}
                       isSelected={selectedComponentId === component.id}
                       isMultiSelected={selectedComponentIds.includes(component.id) && selectedComponentId !== component.id}
@@ -718,6 +731,7 @@ export default function FormPreview({
                     onMove={handleMoveComponent}
                     onResize={handleResizeComponent}
                     onResizeAndMove={handleResizeAndMoveComponent}
+                    onRotate={handleRotateComponent}
                     onClick={onComponentClick}
                     isSelected={selectedComponentId === component.id}
                     isMultiSelected={selectedComponentIds.includes(component.id) && selectedComponentId !== component.id}
