@@ -527,7 +527,7 @@ function PreviewComponent({
         };
 
         return (
-          <div ref={tableRef} className="w-fit h-fit min-w-full">
+          <div ref={tableRef} className="inline-block">
             {/* Header Row */}
             <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, minmax(120px, 1fr))` }}>
               {currentColumns.map((col) => (
@@ -695,8 +695,7 @@ function PreviewComponent({
         ref={setNodeRef}
         style={{
           ...style,
-          width: component.size.width,
-          height: component.size.height,
+          ...(component.type === 'table' ? { width: 'auto', height: 'auto' } : { width: component.size.width, height: component.size.height }),
         }}
         className={`form-component absolute bg-white border-2 border-dashed rounded p-3 transition-colors ${
           isSelected
