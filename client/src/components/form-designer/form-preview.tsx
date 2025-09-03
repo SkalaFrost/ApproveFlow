@@ -795,7 +795,7 @@ function PreviewComponent({
             <div className="w-full h-full bg-gray-50 rounded border relative">
               {/* Chart Title */}
               <div className="absolute top-2 left-2 text-xs font-medium text-gray-600">
-                {component.chartType || "Bar"} Chart
+                {component.chartType || "Bar"}
               </div>
               
               {/* Y-Axis Label */}
