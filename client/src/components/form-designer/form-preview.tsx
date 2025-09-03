@@ -792,46 +792,68 @@ function PreviewComponent({
           const minValue = Math.min(...chartData.map((d: any) => d.y), 0);
           
           return (
-            <div className="w-full h-full p-4">
-              <div className="w-full h-full bg-gray-50 rounded border relative overflow-hidden">
-                {/* Chart Title */}
-                <div className="absolute top-2 left-2 text-xs font-medium text-gray-600">
-                  {component.chartType || "Bar"} Chart
-                </div>
-                
-                {/* Simple Bar Chart Visualization */}
-                {component.chartType === 'bar' || !component.chartType ? (
-                  <div className="flex items-end justify-center h-full px-8 pb-8 pt-8 gap-2">
+            <div className="w-full h-full bg-gray-50 rounded border relative">
+              {/* Chart Title */}
+              <div className="absolute top-2 left-2 text-xs font-medium text-gray-600">
+                {component.chartType || "Bar"} Chart
+              </div>
+              
+              {/* Y-Axis Label */}
+              <div className="absolute left-2 top-1/2 -rotate-90 text-xs text-gray-600 font-medium whitespace-nowrap">
+                {component.yAxis}
+              </div>
+              
+              {/* Chart Area with Coordinate System */}
+              <div className="pl-8 pr-4 pt-8 pb-12 h-full">
+                {/* Grid Lines */}
+                <div className="relative w-full h-full border-l-2 border-b-2 border-gray-400">
+                  {/* Y-Axis Grid Lines and Labels */}
+                  {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
+                    <div key={ratio} className="absolute w-full">
+                      <div 
+                        className="absolute left-0 w-full border-t border-gray-200"
+                        style={{ bottom: `${ratio * 100}%` }}
+                      />
+                      <div 
+                        className="absolute -left-6 text-xs text-gray-600"
+                        style={{ bottom: `${ratio * 100}%`, transform: 'translateY(50%)' }}
+                      >
+                        {Math.round(minValue + (maxValue - minValue) * ratio)}
+                      </div>
+                    </div>
+                  ))}
+                  
+                  {/* Bar Chart Data */}
+                  <div className="flex items-end justify-center h-full px-2 gap-4">
                     {chartData.slice(0, 8).map((data: any, index: number) => (
-                      <div key={index} className="flex flex-col items-center gap-1 flex-1 min-w-0">
-                        <div className="text-xs text-gray-600 mb-1 font-medium">
-                          {data.y}
-                        </div>
+                      <div key={index} className="flex flex-col items-center flex-1 min-w-0 h-full justify-end">
                         <div 
-                          className="bg-blue-500 rounded-sm w-full min-h-[8px]"
+                          className="bg-blue-500 rounded-t-sm w-full min-h-[4px] mb-0"
                           style={{ 
-                            height: maxValue === minValue ? '40px' : `${Math.max(8, (data.y / maxValue) * 80)}px`
+                            height: maxValue === minValue ? '40px' : `${Math.max(4, ((data.y - minValue) / (maxValue - minValue)) * 80)}%`
                           }}
                           title={`${data.x}: ${data.y}`}
                         />
-                        <div className="text-xs text-gray-600 truncate w-full text-center mt-1">
-                          {String(data.x).slice(0, 8)}
-                        </div>
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                        <BarChart3 className="w-8 h-8 text-blue-600" />
+                </div>
+                
+                {/* X-Axis Labels */}
+                <div className="flex justify-center mt-2 px-2 gap-4">
+                  {chartData.slice(0, 8).map((data: any, index: number) => (
+                    <div key={index} className="flex-1 min-w-0 text-center">
+                      <div className="text-xs text-gray-600 truncate">
+                        {String(data.x).slice(0, 8)}
                       </div>
-                      <p className="text-xs text-gray-600">
-                        {component.chartType} Chart Preview
-                      </p>
                     </div>
-                  </div>
-                )}
+                  ))}
+                </div>
+                
+                {/* X-Axis Label */}
+                <div className="text-center mt-2 text-xs text-gray-600 font-medium">
+                  {component.xAxis}
+                </div>
               </div>
             </div>
           );
