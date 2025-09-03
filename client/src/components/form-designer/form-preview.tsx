@@ -863,7 +863,7 @@ function PreviewComponent({
             <div>
               <BarChart3 className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
-                {component.chartType || "Bar"} Chart
+                {component.chartType || "Bar"}
                 {component.dataSource && (
                   <span className="block text-xs mt-1">
                     Source: Table {allComponents?.find((c: FormComponent) => c.id === component.dataSource)?.label || component.dataSource}
