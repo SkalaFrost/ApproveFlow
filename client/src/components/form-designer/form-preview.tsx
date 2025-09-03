@@ -81,18 +81,22 @@ function PreviewComponent({
     if (e.altKey || isAltPressed) return;
 
     setIsDragging(true);
+    // Set cursor to grabbing during drag
+    document.body.style.cursor = 'grabbing';
+    
     const componentElement = e.currentTarget.closest('.form-component') as HTMLElement;
     if (!componentElement) return;
     
+    // Calculate offset from the component's current position, not from the button
     const rect = componentElement.getBoundingClientRect();
+    const canvas = document.querySelector('[data-testid="form-preview-area"]');
+    if (!canvas) return;
+    
+    const canvasRect = canvas.getBoundingClientRect();
     const offsetX = (e.clientX - rect.left) / zoom;
     const offsetY = (e.clientY - rect.top) / zoom;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const canvas = document.querySelector('[data-testid="form-preview-area"]');
-      if (!canvas) return;
-
-      const canvasRect = canvas.getBoundingClientRect();
       const newX = Math.max(0, (e.clientX - canvasRect.left) / zoom - offsetX);
       const newY = Math.max(0, (e.clientY - canvasRect.top) / zoom - offsetY);
       onMove(component.id, newX, newY);
@@ -100,6 +104,8 @@ function PreviewComponent({
 
     const handleMouseUp = () => {
       setIsDragging(false);
+      // Reset cursor
+      document.body.style.cursor = '';
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
@@ -114,6 +120,9 @@ function PreviewComponent({
     
     if (e.altKey || isAltPressed) return;
 
+    // Set cursor to crosshair during rotation
+    document.body.style.cursor = 'crosshair';
+    
     const componentElement = e.currentTarget.closest('.form-component') as HTMLElement;
     if (!componentElement) return;
     
@@ -133,6 +142,8 @@ function PreviewComponent({
     };
 
     const handleMouseUp = () => {
+      // Reset cursor
+      document.body.style.cursor = '';
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
@@ -437,7 +448,7 @@ function PreviewComponent({
         <Button
           size="sm"
           variant="ghost"
-          className="h-6 w-6 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full cursor-move"
+          className="h-6 w-6 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full cursor-grab hover:cursor-grab active:cursor-grabbing"
           onMouseDown={handleDragMouseDown}
           data-testid={`button-drag-${component.id}`}
         >
