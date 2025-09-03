@@ -416,7 +416,7 @@ function PreviewComponent({
           />
         );
       case "table":
-        const tableRef = React.useRef<HTMLDivElement>(null);
+        const tableRef = React.useRef<HTMLTableElement>(null);
         const [editingCell, setEditingCell] = React.useState<{
           row: number;
           col: string;
@@ -450,20 +450,17 @@ function PreviewComponent({
         // Auto-resize table container
         const autoResizeTable = () => {
           if (tableRef.current) {
-            const table = tableRef.current.querySelector("table");
-            if (table) {
-              const tableHeight = table.scrollHeight;
-              const newHeight = Math.max(
-                tableHeight + 80,
-                component.size.height,
-              ); // +80 for padding and buttons
+            const tableHeight = tableRef.current.scrollHeight;
+            const newHeight = Math.max(
+              tableHeight + 80,
+              component.size.height,
+            ); // +80 for padding and buttons
 
-              const container = tableRef.current.closest(
-                ".form-component",
-              ) as HTMLElement;
-              if (container) {
-                container.style.height = newHeight + "px";
-              }
+            const container = tableRef.current.closest(
+              ".form-component",
+            ) as HTMLElement;
+            if (container) {
+              container.style.height = newHeight + "px";
             }
           }
         };
@@ -530,11 +527,10 @@ function PreviewComponent({
         };
 
         return (
-          <div
-            ref={tableRef}
-            className="border-2 border-dashed border-gray-300 rounded-lg p-4 h-full bg-white"
-          >
-            <table className="w-full border-separate border-spacing-0">
+            <table 
+              ref={tableRef} 
+              className="w-full border-separate border-spacing-0 border-2 border-dashed border-gray-300 rounded-lg p-4 h-full bg-white"
+            >
               <thead className="bg-muted">
                 <tr>
                   {currentColumns.map((col) => (
@@ -654,7 +650,6 @@ function PreviewComponent({
                 </tr>
               </tbody>
             </table>
-          </div>
         );
       case "chart":
         const chartRef = React.useRef<HTMLDivElement>(null);
