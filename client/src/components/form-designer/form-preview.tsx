@@ -451,16 +451,12 @@ function PreviewComponent({
         const autoResizeTable = () => {
           if (tableRef.current) {
             const tableHeight = tableRef.current.scrollHeight;
-            const newHeight = Math.max(
-              tableHeight + 80,
-              component.size.height,
-            ); // +80 for padding and buttons
-
             const container = tableRef.current.closest(
               ".form-component",
             ) as HTMLElement;
             if (container) {
-              container.style.height = newHeight + "px";
+              container.style.height = tableHeight + "px";
+              container.style.width = "auto";
             }
           }
         };
@@ -670,7 +666,7 @@ function PreviewComponent({
         ref={setNodeRef}
         style={{
           ...style,
-          ...(component.type === 'table' ? { width: 'auto', height: 'auto' } : { width: component.size.width, height: component.size.height }),
+          ...(component.type === 'table' ? { width: 'auto', height: 'auto', minHeight: 'auto' } : { width: component.size.width, height: component.size.height }),
         }}
         className={`form-component absolute bg-white border-2 border-dashed rounded ${component.type === 'table' ? '' : 'p-3'} transition-colors ${
           isSelected
