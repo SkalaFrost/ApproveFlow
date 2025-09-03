@@ -14,9 +14,7 @@ import {
   CheckSquare,
   Calendar,
   Hash,
-  Mail,
   FileText,
-  ToggleLeft,
   ChevronRight,
   ChevronLeft,
   Table,
@@ -46,11 +44,6 @@ const formComponents = [
     icon: CheckSquare,
   },
   {
-    type: "radio" as const,
-    label: "Radio Button",
-    icon: ToggleLeft,
-  },
-  {
     type: "date" as const,
     label: "Date Picker",
     icon: Calendar,
@@ -59,11 +52,6 @@ const formComponents = [
     type: "number" as const,
     label: "Number",
     icon: Hash,
-  },
-  {
-    type: "email" as const,
-    label: "Email",
-    icon: Mail,
   },
   {
     type: "table" as const,

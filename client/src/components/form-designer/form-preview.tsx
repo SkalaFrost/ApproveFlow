@@ -31,7 +31,7 @@ interface FormPreviewProps {
 }
 
 // Danh sách các field type có thể resize
-const RESIZABLE_FIELD_TYPES = ['textarea', 'text', 'email', 'number'];
+const RESIZABLE_FIELD_TYPES = ['textarea', 'text', 'number'];
 
 function PreviewComponent({ 
   component, 
@@ -241,7 +241,6 @@ function PreviewComponent({
   const renderInput = () => {
     switch (component.type) {
       case "text":
-      case "email":
         return (
           <Input 
             type={component.type}
@@ -327,37 +326,6 @@ function PreviewComponent({
             onCheckedChange={handleFieldChange}
             onClick={handleFieldClick}
           />
-        );
-      case "radio":
-        return (
-          <div className="space-y-2">
-            {component.options?.map((option, index) => (
-              <div key={index} className="flex items-center space-x-2">
-                <input 
-                  type="radio" 
-                  id={`${component.id}-${index}`}
-                  name={component.id}
-                  value={option}
-                  checked={fieldValues[component.id] === option}
-                  onChange={(e) => handleFieldChange(e.target.value)}
-                  onClick={handleFieldClick}
-                  className="w-4 h-4 text-primary"
-                />
-              </div>
-            )) || (
-              <div className="flex items-center space-x-2">
-                <input 
-                  type="radio" 
-                  id={component.id}
-                  name={component.id}
-                  checked={fieldValues[component.id] === 'Option 1'}
-                  onChange={() => handleFieldChange('Option 1')}
-                  onClick={handleFieldClick}
-                  className="w-4 h-4 text-primary"
-                />
-              </div>
-            )}
-          </div>
         );
       case "file":
         return (
