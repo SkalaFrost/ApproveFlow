@@ -273,7 +273,8 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.value)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
-            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none resize-none"
+            className="border-0 rounded-none bg-transparent w-full min-h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none resize-none"
+            style={{ height: 'auto', minHeight: '100%' }}
           />
         );
       case "number":
@@ -420,7 +421,8 @@ function PreviewComponent({
       style={{
         ...style,
         width: component.size.width,
-        height: component.size.height
+        height: component.type === 'textarea' ? 'auto' : component.size.height,
+        minHeight: component.type === 'textarea' ? component.size.height : undefined
       }}
       className={`form-component group absolute bg-white border-2 border-dashed rounded p-3 transition-colors ${
         isSelected 
@@ -478,7 +480,7 @@ function PreviewComponent({
         </Button>
       </div>
 
-      <div className="w-full h-full">
+      <div className={`w-full ${component.type === 'textarea' ? 'min-h-full' : 'h-full'}`}>
         {renderInput()}
       </div>
 
