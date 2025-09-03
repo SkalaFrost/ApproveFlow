@@ -631,22 +631,65 @@ function PreviewComponent({
             };
           }
         }, [isDragging, handleMouseMove, handleMouseUp]);
+        // Get table styling properties
         const showBorders = component.showBorders !== false;
-        const borderStyle = showBorders ? '1px dashed #d1d5db' : 'none';
+        const borderStyle = component.borderStyle || 'solid';
+        const borderColor = component.tableBorderColor || '#d1d5db';
+        const borderWidth = showBorders ? '1px' : '0px';
+        const borderCSS = showBorders ? `${borderWidth} ${borderStyle} ${borderColor}` : 'none';
+        
+        const headerBgColor = component.headerBackgroundColor || '#f9fafb';
+        const headerTextColor = component.headerTextColor || '#111827';
+        const alternateRows = component.alternateRowColors || false;
+        const evenRowColor = component.evenRowColor || '#ffffff';
+        const oddRowColor = component.oddRowColor || '#f9fafb';
+        const tableRowHeight = component.rowHeight || 40;
+        
+        // Table functionality properties
+        const showRowNumbers = component.showRowNumbers || false;
+        const fixedHeader = component.fixedHeader || false;
+        const allowEdit = component.allowEdit || false;
         
         return (
           <div ref={tableRef} className="inline-block relative w-full h-full">
+            {/* Row Numbers Header */}
+            {showRowNumbers && component.showHeader !== false && (
+              <div className="absolute left-0 top-0 w-8 z-10">
+                <div 
+                  className="text-xs font-medium p-1 text-center border-r border-b"
+                  style={{
+                    height: `${rowHeights[0]}px`,
+                    backgroundColor: headerBgColor,
+                    color: headerTextColor,
+                    borderColor: borderColor,
+                    borderStyle: borderStyle
+                  }}
+                >
+                  #
+                </div>
+              </div>
+            )}
+            
             {/* Header Row - conditional */}
             {component.showHeader !== false && (
-              <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: columnWidths.map(w => `${w}px`).join(' ') }}>
+              <div 
+                className={`grid gap-0 ${fixedHeader ? 'sticky top-0 z-20' : ''}`} 
+                style={{ 
+                  gridTemplateColumns: columnWidths.map(w => `${w}px`).join(' '),
+                  marginLeft: showRowNumbers ? '32px' : '0'
+                }}
+              >
                 {currentColumns.map((col, colIndex) => (
                   <div 
                     key={col.id} 
                     className="text-sm font-medium p-2 break-words overflow-wrap-anywhere"
                     style={{
                       height: `${rowHeights[0]}px`,
-                      borderRight: colIndex < currentColumns.length - 1 ? borderStyle : 'none',
-                      borderBottom: showBorders ? borderStyle : 'none'
+                      backgroundColor: headerBgColor,
+                      color: headerTextColor,
+                      borderRight: colIndex < currentColumns.length - 1 ? borderCSS : 'none',
+                      borderBottom: showBorders ? borderCSS : 'none',
+                      textAlign: (col as any).alignment || 'left'
                     }} 
                   >
                     {editingColumn === col.id ? (
@@ -684,18 +727,47 @@ function PreviewComponent({
             )}
             
             {/* Data Rows */}
-            {currentRows.map((row, rowIndex) => (
-              <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: columnWidths.map(w => `${w}px`).join(' ') }}>
-                {currentColumns.map((col, colIndex) => (
+            {currentRows.map((row, rowIndex) => {
+              const isEvenRow = rowIndex % 2 === 0;
+              const rowBgColor = alternateRows ? (isEvenRow ? evenRowColor : oddRowColor) : '#ffffff';
+              
+              return (
+                <div key={rowIndex} className="relative">
+                  {/* Row Number */}
+                  {showRowNumbers && (
+                    <div 
+                      className="absolute left-0 w-8 text-xs p-1 text-center border-r border-b"
+                      style={{
+                        height: `${rowHeights[component.showHeader !== false ? rowIndex + 1 : rowIndex]}px`,
+                        backgroundColor: rowBgColor,
+                        borderColor: borderColor,
+                        borderStyle: borderStyle,
+                        lineHeight: `${rowHeights[component.showHeader !== false ? rowIndex + 1 : rowIndex] - 8}px`
+                      }}
+                    >
+                      {rowIndex + 1}
+                    </div>
+                  )}
+                  
                   <div 
-                    key={col.id} 
-                    className="text-sm p-2 break-words overflow-wrap-anywhere"
-                    style={{
-                      height: `${rowHeights[component.showHeader !== false ? rowIndex + 1 : rowIndex]}px`,
-                      borderRight: colIndex < currentColumns.length - 1 ? borderStyle : 'none',
-                      borderBottom: rowIndex < currentRows.length - 1 ? borderStyle : 'none'
+                    className="grid gap-0" 
+                    style={{ 
+                      gridTemplateColumns: columnWidths.map(w => `${w}px`).join(' '),
+                      marginLeft: showRowNumbers ? '32px' : '0'
                     }}
                   >
+                    {currentColumns.map((col, colIndex) => (
+                      <div 
+                        key={col.id} 
+                        className="text-sm p-2 break-words overflow-wrap-anywhere"
+                        style={{
+                          height: `${rowHeights[component.showHeader !== false ? rowIndex + 1 : rowIndex]}px`,
+                          backgroundColor: rowBgColor,
+                          borderRight: colIndex < currentColumns.length - 1 ? borderCSS : 'none',
+                          borderBottom: rowIndex < currentRows.length - 1 ? borderCSS : 'none',
+                          textAlign: (col as any).alignment || 'left'
+                        }}
+                      >
                     {editingCell?.row === rowIndex && editingCell?.col === col.id ? (
                       <input
                         type="text"
@@ -728,12 +800,11 @@ function PreviewComponent({
                   </div>
                 ))}
               </div>
-            ))}
-            
-            {/* Column Resize Handles */}
-            {currentColumns.slice(0, -1).map((_, colIndex) => {
+            );
+            {/* Column resize handles */}
+            {columnWidths.slice(0, -1).map((_, colIndex) => {
               const leftOffset = columnWidths.slice(0, colIndex + 1).reduce((sum, width) => sum + width, 0);
-              const totalHeight = (component.showHeader !== false ? rowHeights[0] : 0) + rowHeights.slice(component.showHeader !== false ? 1 : 0).reduce((sum, height) => sum + height, 0);
+              const totalHeight = rowHeights.reduce((sum, height) => sum + height, 0);
               
               return (
                 <div
@@ -750,8 +821,8 @@ function PreviewComponent({
                 />
               );
             })}
-            
-            {/* Row Resize Handles */}
+
+            {/* Row resize handles */}
             {(component.showHeader !== false ? rowHeights.slice(0, -1) : rowHeights.slice(0, -1)).map((_, rowIndex) => {
               const topOffset = rowHeights.slice(0, rowIndex + 1).reduce((sum, height) => sum + height, 0);
               const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
@@ -791,20 +862,56 @@ function PreviewComponent({
           const maxValue = Math.max(...chartData.map((d: any) => d.y), 1);
           const minValue = Math.min(...chartData.map((d: any) => d.y), 0);
           
+          // Format value function
+          const formatValue = (value: number) => {
+            const decimals = component.decimalPlaces || 0;
+            const formatted = value.toFixed(decimals);
+            
+            switch (component.dataFormat) {
+              case 'currency':
+                return `$${formatted}`;
+              case 'percentage':
+                return `${formatted}%`;
+              default:
+                return formatted;
+            }
+          };
+          
+          const backgroundColor = component.backgroundColor || '#f9fafb';
+          const borderColor = component.chartBorderColor || '#e5e7eb';
+          const showGrid = component.showGrid !== false;
+          const gridColor = component.gridColor || '#e5e7eb';
+          const showAxisLabels = component.showAxisLabels !== false;
+          const title = component.title || component.chartType || '';
+          const xAxisTitle = component.xAxisTitle || component.xAxis;
+          const yAxisTitle = component.yAxisTitle || component.yAxis;
+          
           return (
-            <div className="w-full h-full bg-gray-50 rounded border relative pl-8 pr-4 pt-8 pb-12">
+            <div 
+              className="w-full h-full rounded border relative pl-8 pr-4 pt-8 pb-12"
+              style={{ 
+                backgroundColor,
+                borderColor,
+                borderWidth: '1px',
+                borderStyle: 'solid'
+              }}
+            >
               {/* Chart Title */}
-              <div className="absolute top-2 left-2 text-xs font-medium text-gray-600">
-                {component.chartType || ""}
-              </div>
+              {title && (
+                <div className="absolute top-2 left-2 text-xs font-medium text-gray-600">
+                  {title}
+                </div>
+              )}
               
               {/* Y-Axis Label */}
-              <div className="absolute left-2 top-1/2 -rotate-90 text-xs text-gray-600 font-medium whitespace-nowrap">
-                {component.yAxis}
-              </div>
+              {showAxisLabels && yAxisTitle && (
+                <div className="absolute left-2 top-1/2 -rotate-90 text-xs text-gray-600 font-medium whitespace-nowrap">
+                  {yAxisTitle}
+                </div>
+              )}
               
               {/* Y-Axis Numbers */}
-              {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
+              {showAxisLabels && [0, 0.25, 0.5, 0.75, 1].map((ratio) => (
                 <div 
                   key={ratio}
                   className="absolute left-2 text-xs text-gray-600"
@@ -813,54 +920,83 @@ function PreviewComponent({
                     transform: 'translateY(50%)' 
                   }}
                 >
-                  {Math.round(minValue + (maxValue - minValue) * ratio)}
+                  {formatValue(minValue + (maxValue - minValue) * ratio)}
                 </div>
               ))}
               
               {/* Chart Area with Coordinate System */}
               {/* Grid Lines */}
-              <div className="relative w-full h-full border-l-2 border-b-2 border-gray-400">
+              <div 
+                className="relative w-full h-full border-l-2 border-b-2"
+                style={{ borderColor: gridColor }}
+              >
                 {/* Y-Axis Grid Lines */}
-                {[0, 0.25, 0.5, 0.75, 1].map((ratio) => (
+                {showGrid && [0, 0.25, 0.5, 0.75, 1].map((ratio) => (
                   <div key={ratio} className="absolute w-full">
                     <div 
-                      className="absolute left-0 w-full border-t border-gray-200"
-                      style={{ bottom: `${ratio * 100}%` }}
+                      className="absolute left-0 w-full border-t"
+                      style={{ 
+                        bottom: `${ratio * 100}%`,
+                        borderColor: gridColor
+                      }}
                     />
                   </div>
                 ))}
                 
                 {/* Bar Chart Data */}
                 <div className="flex items-end justify-center h-full px-2 gap-4">
-                  {chartData.slice(0, 8).map((data: any, index: number) => (
-                    <div key={index} className="flex flex-col items-center flex-1 min-w-0 h-full justify-end">
-                      <div 
-                        className="bg-blue-500 rounded-t-sm w-full min-h-[4px] mb-0"
-                        style={{ 
-                          height: maxValue === minValue ? '40px' : `${Math.max(4, ((data.y - minValue) / (maxValue - minValue)) * 80)}%`
-                        }}
-                        title={`${data.x}: ${data.y}`}
-                      />
-                    </div>
-                  ))}
+                  {chartData.slice(0, 8).map((data: any, index: number) => {
+                    const barColor = component.colors && component.colors[index % component.colors.length] || '#3b82f6';
+                    const barHeight = maxValue === minValue ? '40px' : `${Math.max(4, ((data.y - minValue) / (maxValue - minValue)) * 80)}%`;
+                    
+                    return (
+                      <div key={index} className="flex flex-col items-center flex-1 min-w-0 h-full justify-end relative">
+                        <div 
+                          className="rounded-t-sm w-full min-h-[4px] mb-0"
+                          style={{ 
+                            height: barHeight,
+                            backgroundColor: barColor
+                          }}
+                          title={`${data.x}: ${formatValue(data.y)}`}
+                        />
+                        {/* Show values on bars */}
+                        {component.showValues && (
+                          <div 
+                            className="absolute text-xs text-gray-700 font-medium whitespace-nowrap"
+                            style={{
+                              top: component.valuePosition === 'inside' ? '50%' : 
+                                   component.valuePosition === 'center' ? '50%' : '-16px',
+                              transform: component.valuePosition === 'inside' || component.valuePosition === 'center' ? 'translateY(-50%)' : 'none'
+                            }}
+                          >
+                            {formatValue(data.y)}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
               
               {/* X-Axis Labels */}
-              <div className="flex justify-center mt-2 px-2 gap-4">
-                {chartData.slice(0, 8).map((data: any, index: number) => (
-                  <div key={index} className="flex-1 min-w-0 text-center">
-                    <div className="text-xs text-gray-600 truncate">
-                      {String(data.x).slice(0, 8)}
+              {showAxisLabels && (
+                <div className="flex justify-center mt-2 px-2 gap-4">
+                  {chartData.slice(0, 8).map((data: any, index: number) => (
+                    <div key={index} className="flex-1 min-w-0 text-center">
+                      <div className="text-xs text-gray-600 truncate">
+                        {String(data.x).slice(0, 8)}
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
               
               {/* X-Axis Label */}
-              <div className="text-center mt-2 text-xs text-gray-600 font-medium">
-                {component.xAxis}
-              </div>
+              {showAxisLabels && xAxisTitle && (
+                <div className="text-center mt-2 text-xs text-gray-600 font-medium">
+                  {xAxisTitle}
+                </div>
+              )}
             </div>
           );
         }

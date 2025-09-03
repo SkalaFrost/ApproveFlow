@@ -248,6 +248,151 @@ export default function FormComponentProperties({
                 Tip: Drag the borders between columns and rows to resize them individually.
               </div>
             </div>
+            
+            {/* Table Appearance Properties */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Table Appearance</Label>
+              <div>
+                <Label htmlFor="headerBackgroundColor">Header Background Color</Label>
+                <Input
+                  id="headerBackgroundColor"
+                  type="color"
+                  value={component.headerBackgroundColor || '#f9fafb'}
+                  onChange={(e) => handleBasicUpdate('headerBackgroundColor', e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="headerTextColor">Header Text Color</Label>
+                <Input
+                  id="headerTextColor"
+                  type="color"
+                  value={component.headerTextColor || '#111827'}
+                  onChange={(e) => handleBasicUpdate('headerTextColor', e.target.value)}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="alternateRowColors"
+                  checked={component.alternateRowColors || false}
+                  onCheckedChange={(checked) => handleBasicUpdate('alternateRowColors', checked)}
+                />
+                <Label htmlFor="alternateRowColors">Alternate Row Colors</Label>
+              </div>
+              {component.alternateRowColors && (
+                <>
+                  <div>
+                    <Label htmlFor="evenRowColor">Even Row Color</Label>
+                    <Input
+                      id="evenRowColor"
+                      type="color"
+                      value={component.evenRowColor || '#ffffff'}
+                      onChange={(e) => handleBasicUpdate('evenRowColor', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="oddRowColor">Odd Row Color</Label>
+                    <Input
+                      id="oddRowColor"
+                      type="color"
+                      value={component.oddRowColor || '#f9fafb'}
+                      onChange={(e) => handleBasicUpdate('oddRowColor', e.target.value)}
+                    />
+                  </div>
+                </>
+              )}
+              <div>
+                <Label htmlFor="borderStyle">Border Style</Label>
+                <Select value={component.borderStyle || 'solid'} onValueChange={(value) => handleBasicUpdate('borderStyle', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select border style" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="solid">Solid</SelectItem>
+                    <SelectItem value="dashed">Dashed</SelectItem>
+                    <SelectItem value="dotted">Dotted</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="tableBorderColor">Border Color</Label>
+                <Input
+                  id="tableBorderColor"
+                  type="color"
+                  value={component.tableBorderColor || '#e5e7eb'}
+                  onChange={(e) => handleBasicUpdate('tableBorderColor', e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="rowHeight">Default Row Height</Label>
+                <Input
+                  id="rowHeight"
+                  type="number"
+                  min="20"
+                  max="100"
+                  value={component.rowHeight || 40}
+                  onChange={(e) => handleBasicUpdate('rowHeight', parseInt(e.target.value) || 40)}
+                />
+              </div>
+            </div>
+            
+            {/* Table Functionality Properties */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Table Functionality</Label>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="tableSortable"
+                  checked={component.sortable || false}
+                  onCheckedChange={(checked) => handleBasicUpdate('sortable', checked)}
+                />
+                <Label htmlFor="tableSortable">Allow Column Sorting</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="pagination"
+                  checked={component.pagination || false}
+                  onCheckedChange={(checked) => handleBasicUpdate('pagination', checked)}
+                />
+                <Label htmlFor="pagination">Enable Pagination</Label>
+              </div>
+              {component.pagination && (
+                <div>
+                  <Label htmlFor="rowsPerPage">Rows Per Page</Label>
+                  <Input
+                    id="rowsPerPage"
+                    type="number"
+                    min="5"
+                    max="50"
+                    value={component.rowsPerPage || 10}
+                    onChange={(e) => handleBasicUpdate('rowsPerPage', parseInt(e.target.value) || 10)}
+                  />
+                </div>
+              )}
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="fixedHeader"
+                  checked={component.fixedHeader || false}
+                  onCheckedChange={(checked) => handleBasicUpdate('fixedHeader', checked)}
+                />
+                <Label htmlFor="fixedHeader">Fixed Header</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showRowNumbers"
+                  checked={component.showRowNumbers || false}
+                  onCheckedChange={(checked) => handleBasicUpdate('showRowNumbers', checked)}
+                />
+                <Label htmlFor="showRowNumbers">Show Row Numbers</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="allowEdit"
+                  checked={component.allowEdit || false}
+                  onCheckedChange={(checked) => handleBasicUpdate('allowEdit', checked)}
+                />
+                <Label htmlFor="allowEdit">Allow Inline Editing</Label>
+              </div>
+            </div>
           </div>
         )}
 
@@ -338,6 +483,212 @@ export default function FormComponentProperties({
                   )}
                 </SelectContent>
               </Select>
+            </div>
+            
+            {/* Chart Appearance Properties */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Appearance</Label>
+              <div>
+                <Label htmlFor="chartTitle">Custom Title</Label>
+                <Input
+                  id="chartTitle"
+                  value={component.title || ''}
+                  onChange={(e) => handleBasicUpdate('title', e.target.value)}
+                  placeholder="Enter chart title"
+                />
+              </div>
+              <div>
+                <Label htmlFor="backgroundColor">Background Color</Label>
+                <Input
+                  id="backgroundColor"
+                  type="color"
+                  value={component.backgroundColor || '#f9fafb'}
+                  onChange={(e) => handleBasicUpdate('backgroundColor', e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="chartBorderColor">Border Color</Label>
+                <Input
+                  id="chartBorderColor"
+                  type="color"
+                  value={component.chartBorderColor || '#e5e7eb'}
+                  onChange={(e) => handleBasicUpdate('chartBorderColor', e.target.value)}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showLegend"
+                  checked={component.showLegend || false}
+                  onCheckedChange={(checked) => handleBasicUpdate('showLegend', checked)}
+                />
+                <Label htmlFor="showLegend">Show Legend</Label>
+              </div>
+              {component.showLegend && (
+                <div>
+                  <Label htmlFor="legendPosition">Legend Position</Label>
+                  <Select value={component.legendPosition || 'top'} onValueChange={(value) => handleBasicUpdate('legendPosition', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select position" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="top">Top</SelectItem>
+                      <SelectItem value="bottom">Bottom</SelectItem>
+                      <SelectItem value="left">Left</SelectItem>
+                      <SelectItem value="right">Right</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+            
+            {/* Chart Data Formatting */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Data Formatting</Label>
+              <div>
+                <Label htmlFor="dataFormat">Number Format</Label>
+                <Select value={component.dataFormat || 'number'} onValueChange={(value) => handleBasicUpdate('dataFormat', value)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select format" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="number">Number</SelectItem>
+                    <SelectItem value="currency">Currency</SelectItem>
+                    <SelectItem value="percentage">Percentage</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="decimalPlaces">Decimal Places</Label>
+                <Input
+                  id="decimalPlaces"
+                  type="number"
+                  min="0"
+                  max="4"
+                  value={component.decimalPlaces || 0}
+                  onChange={(e) => handleBasicUpdate('decimalPlaces', parseInt(e.target.value) || 0)}
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showValues"
+                  checked={component.showValues || false}
+                  onCheckedChange={(checked) => handleBasicUpdate('showValues', checked)}
+                />
+                <Label htmlFor="showValues">Show Values on Chart</Label>
+              </div>
+              {component.showValues && (
+                <div>
+                  <Label htmlFor="valuePosition">Value Position</Label>
+                  <Select value={component.valuePosition || 'top'} onValueChange={(value) => handleBasicUpdate('valuePosition', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select position" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="top">Top</SelectItem>
+                      <SelectItem value="center">Center</SelectItem>
+                      <SelectItem value="inside">Inside</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+            
+            {/* Chart Grid and Axes */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Grid & Axes</Label>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showGrid"
+                  checked={component.showGrid !== false}
+                  onCheckedChange={(checked) => handleBasicUpdate('showGrid', checked)}
+                />
+                <Label htmlFor="showGrid">Show Grid Lines</Label>
+              </div>
+              {component.showGrid !== false && (
+                <div>
+                  <Label htmlFor="gridColor">Grid Color</Label>
+                  <Input
+                    id="gridColor"
+                    type="color"
+                    value={component.gridColor || '#e5e7eb'}
+                    onChange={(e) => handleBasicUpdate('gridColor', e.target.value)}
+                  />
+                </div>
+              )}
+              <div>
+                <Label htmlFor="xAxisTitle">X-Axis Title</Label>
+                <Input
+                  id="xAxisTitle"
+                  value={component.xAxisTitle || ''}
+                  onChange={(e) => handleBasicUpdate('xAxisTitle', e.target.value)}
+                  placeholder="Custom X-axis title"
+                />
+              </div>
+              <div>
+                <Label htmlFor="yAxisTitle">Y-Axis Title</Label>
+                <Input
+                  id="yAxisTitle"
+                  value={component.yAxisTitle || ''}
+                  onChange={(e) => handleBasicUpdate('yAxisTitle', e.target.value)}
+                  placeholder="Custom Y-axis title"
+                />
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="showAxisLabels"
+                  checked={component.showAxisLabels !== false}
+                  onCheckedChange={(checked) => handleBasicUpdate('showAxisLabels', checked)}
+                />
+                <Label htmlFor="showAxisLabels">Show Axis Labels</Label>
+              </div>
+            </div>
+            
+            {/* Chart Type Specific Properties */}
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Chart Style</Label>
+              {component.chartType === 'bar' && (
+                <>
+                  <div>
+                    <Label htmlFor="barOrientation">Bar Orientation</Label>
+                    <Select value={component.barOrientation || 'vertical'} onValueChange={(value) => handleBasicUpdate('barOrientation', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select orientation" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="vertical">Vertical</SelectItem>
+                        <SelectItem value="horizontal">Horizontal</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="barStyle">Bar Style</Label>
+                    <Select value={component.barStyle || 'grouped'} onValueChange={(value) => handleBasicUpdate('barStyle', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select style" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="grouped">Grouped</SelectItem>
+                        <SelectItem value="stacked">Stacked</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              )}
+              {component.chartType === 'line' && (
+                <div>
+                  <Label htmlFor="lineStyle">Line Style</Label>
+                  <Select value={component.lineStyle || 'straight'} onValueChange={(value) => handleBasicUpdate('lineStyle', value)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select style" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="straight">Straight</SelectItem>
+                      <SelectItem value="curved">Curved</SelectItem>
+                      <SelectItem value="stepped">Stepped</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
           </div>
         )}
