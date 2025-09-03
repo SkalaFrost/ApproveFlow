@@ -770,6 +770,64 @@ function PreviewComponent({
           </div>
         );
       case "chart":
+        // Get data from the source table
+        const sourceTable = component.dataSource ? 
+          components?.find(comp => comp.id === component.dataSource && comp.type === 'table') : null;
+        
+        const hasValidData = sourceTable && component.xAxis && component.yAxis && 
+          sourceTable.columns && sourceTable.rows;
+        
+        if (hasValidData) {
+          // Render a simple visual chart
+          const chartData = sourceTable.rows?.map((row: any) => ({
+            x: row[component.xAxis] || 0,
+            y: parseFloat(row[component.yAxis]) || 0
+          })) || [];
+          
+          const maxValue = Math.max(...chartData.map(d => d.y), 1);
+          
+          return (
+            <div className="w-full h-full p-4">
+              <div className="w-full h-full bg-gray-50 rounded border relative overflow-hidden">
+                {/* Chart Title */}
+                <div className="absolute top-2 left-2 text-xs font-medium text-gray-600">
+                  {component.chartType || "Bar"} Chart
+                </div>
+                
+                {/* Simple Bar Chart Visualization */}
+                {component.chartType === 'bar' || !component.chartType ? (
+                  <div className="flex items-end justify-center h-full px-8 pb-8 pt-8 gap-2">
+                    {chartData.slice(0, 8).map((data, index) => (
+                      <div key={index} className="flex flex-col items-center gap-1 flex-1 min-w-0">
+                        <div 
+                          className="bg-blue-500 rounded-sm w-full min-h-[4px]"
+                          style={{ height: `${(data.y / maxValue) * 60}%` }}
+                          title={`${data.x}: ${data.y}`}
+                        />
+                        <div className="text-xs text-gray-600 truncate w-full text-center">
+                          {String(data.x).slice(0, 8)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                        <BarChart3 className="w-8 h-8 text-blue-600" />
+                      </div>
+                      <p className="text-xs text-gray-600">
+                        {component.chartType} Chart Preview
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        }
+        
+        // Default placeholder when not configured
         return (
           <div className="w-full h-full flex items-center justify-center text-center">
             <div>
@@ -778,8 +836,11 @@ function PreviewComponent({
                 {component.chartType || "Bar"} Chart
                 {component.dataSource && (
                   <span className="block text-xs mt-1">
-                    Source: Table {component.dataSource}
+                    Source: Table {allComponents?.find(c => c.id === component.dataSource)?.label || component.dataSource}
                   </span>
+                )}
+                {!component.dataSource && (
+                  <span className="block text-xs mt-1">Configure data source and axes</span>
                 )}
               </p>
             </div>

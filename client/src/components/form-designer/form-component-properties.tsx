@@ -293,21 +293,51 @@ export default function FormComponentProperties({
             </div>
             <div>
               <Label htmlFor="xAxis">X-Axis Column</Label>
-              <Input
-                id="xAxis"
-                value={component.xAxis || ''}
-                onChange={(e) => onUpdate({ xAxis: e.target.value })}
-                placeholder="Column name for X-axis"
-              />
+              <Select value={component.xAxis || ''} onValueChange={(value) => onUpdate({ xAxis: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select X-axis column" />
+                </SelectTrigger>
+                <SelectContent>
+                  {component.dataSource && allComponents
+                    .find(comp => comp.id === component.dataSource && comp.type === 'table')
+                    ?.columns?.map((col: any) => (
+                      <SelectItem key={col.id} value={col.id}>
+                        {col.label}
+                      </SelectItem>
+                    ))}
+                  {(!component.dataSource || !allComponents
+                    .find(comp => comp.id === component.dataSource && comp.type === 'table')
+                    ?.columns?.length) && (
+                    <SelectItem value="no-columns" disabled>
+                      Select a data source first
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="yAxis">Y-Axis Column</Label>
-              <Input
-                id="yAxis"
-                value={component.yAxis || ''}
-                onChange={(e) => onUpdate({ yAxis: e.target.value })}
-                placeholder="Column name for Y-axis"
-              />
+              <Select value={component.yAxis || ''} onValueChange={(value) => onUpdate({ yAxis: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Y-axis column" />
+                </SelectTrigger>
+                <SelectContent>
+                  {component.dataSource && allComponents
+                    .find(comp => comp.id === component.dataSource && comp.type === 'table')
+                    ?.columns?.map((col: any) => (
+                      <SelectItem key={col.id} value={col.id}>
+                        {col.label}
+                      </SelectItem>
+                    ))}
+                  {(!component.dataSource || !allComponents
+                    .find(comp => comp.id === component.dataSource && comp.type === 'table')
+                    ?.columns?.length) && (
+                    <SelectItem value="no-columns" disabled>
+                      Select a data source first
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         )}
