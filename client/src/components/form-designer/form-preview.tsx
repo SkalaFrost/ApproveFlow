@@ -792,7 +792,7 @@ function PreviewComponent({
           const minValue = Math.min(...chartData.map((d: any) => d.y), 0);
           
           return (
-            <div className="w-full h-full bg-gray-50 rounded border relative pl-8 pr-4 pt-8 pb-12">
+            <div className="w-full h-full bg-gray-50 rounded border relative">
               {/* Chart Title */}
               <div className="absolute top-2 left-2 text-xs font-medium text-gray-600">
                 {component.chartType || "Bar"}
