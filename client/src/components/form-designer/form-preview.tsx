@@ -527,129 +527,110 @@ function PreviewComponent({
         };
 
         return (
-            <table 
-              ref={tableRef} 
-              className="w-full border-separate border-spacing-0 border-2 border-dashed border-gray-300 rounded-lg p-4 h-full bg-white"
-            >
-              <thead className="bg-muted">
-                <tr>
-                  {currentColumns.map((col) => (
-                    <th
-                      key={col.id}
-                      className="px-4 py-2 text-left text-sm font-medium relative group"
+          <div ref={tableRef} className="w-full h-full">
+            {/* Header Row */}
+            <div className="grid gap-0 bg-muted/50 p-2" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, 1fr)` }}>
+              {currentColumns.map((col) => (
+                <div key={col.id} className="p-2 text-sm font-medium">
+                  {editingColumn === col.id ? (
+                    <input
+                      type="text"
+                      defaultValue={col.label}
+                      className="bg-transparent border-none outline-none w-full"
+                      onBlur={(e) => handleColumnEdit(col.id, e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleColumnEdit(col.id, e.currentTarget.value);
+                        }
+                        if (e.key === "Escape") {
+                          setEditingColumn(null);
+                        }
+                      }}
+                      autoFocus
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  ) : (
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingColumn(col.id);
+                      }}
+                      className="cursor-pointer hover:bg-muted/50 px-1 py-1 rounded"
+                      title="Click to edit column name"
                     >
-                      {editingColumn === col.id ? (
-                        <input
-                          type="text"
-                          defaultValue={col.label}
-                          className="bg-transparent border-none outline-none w-full"
-                          onBlur={(e) =>
-                            handleColumnEdit(col.id, e.target.value)
+                      {col.label}
+                    </span>
+                  )}
+                </div>
+              ))}
+              <div className="p-2 text-sm font-medium">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addNewColumn();
+                  }}
+                  className="text-blue-500 hover:text-blue-700 text-xs"
+                  title="Add new column"
+                >
+                  + Add Column
+                </button>
+              </div>
+            </div>
+            
+            {/* Data Rows */}
+            {currentRows.map((row, rowIndex) => (
+              <div key={rowIndex} className="grid gap-0 p-2" style={{ gridTemplateColumns: `repeat(${currentColumns.length + 1}, 1fr)` }}>
+                {currentColumns.map((col) => (
+                  <div key={col.id} className="p-2 text-sm">
+                    {editingCell?.row === rowIndex && editingCell?.col === col.id ? (
+                      <input
+                        type="text"
+                        defaultValue={(row as any)[col.id] || ""}
+                        className="bg-transparent border border-gray-300 rounded px-1 py-1 w-full text-sm"
+                        onBlur={(e) => handleCellEdit(rowIndex, col.id, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleCellEdit(rowIndex, col.id, e.currentTarget.value);
                           }
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                              handleColumnEdit(col.id, e.currentTarget.value);
-                            }
-                            if (e.key === "Escape") {
-                              setEditingColumn(null);
-                            }
-                          }}
-                          autoFocus
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                      ) : (
-                        <span
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setEditingColumn(col.id);
-                          }}
-                          className="cursor-pointer hover:bg-muted/50 px-1 py-1 rounded"
-                          title="Click to edit column name"
-                        >
-                          {col.label}
-                        </span>
-                      )}
-                    </th>
-                  ))}
-                  <th className="px-4 py-2 text-left text-sm font-medium">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addNewColumn();
-                      }}
-                      className="text-blue-500 hover:text-blue-700 text-xs"
-                      title="Add new column"
-                    >
-                      + Add Column
-                    </button>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentRows.map((row, rowIndex) => (
-                  <tr key={rowIndex}>
-                    {currentColumns.map((col) => (
-                      <td
-                        key={col.id}
-                        className="px-4 py-2 text-sm relative group"
+                          if (e.key === "Escape") {
+                            setEditingCell(null);
+                          }
+                        }}
+                        autoFocus
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingCell({ row: rowIndex, col: col.id });
+                        }}
+                        className="cursor-pointer hover:bg-muted/50 px-1 py-1 rounded block min-h-[20px]"
+                        title="Click to edit cell"
                       >
-                        {editingCell?.row === rowIndex &&
-                        editingCell?.col === col.id ? (
-                          <input
-                            type="text"
-                            defaultValue={(row as any)[col.id] || ""}
-                            className="bg-transparent border border-gray-300 rounded px-1 py-1 w-full text-sm"
-                            onBlur={(e) =>
-                              handleCellEdit(rowIndex, col.id, e.target.value)
-                            }
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                handleCellEdit(
-                                  rowIndex,
-                                  col.id,
-                                  e.currentTarget.value,
-                                );
-                              }
-                              if (e.key === "Escape") {
-                                setEditingCell(null);
-                              }
-                            }}
-                            autoFocus
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        ) : (
-                          <span
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingCell({ row: rowIndex, col: col.id });
-                            }}
-                            className="cursor-pointer hover:bg-muted/50 px-1 py-1 rounded block min-h-[20px]"
-                            title="Click to edit cell"
-                          >
-                            {(row as any)[col.id] || "-"}
-                          </span>
-                        )}
-                      </td>
-                    ))}
-                    <td className="px-4 py-2 text-sm"></td>
-                  </tr>
+                        {(row as any)[col.id] || "-"}
+                      </span>
+                    )}
+                  </div>
                 ))}
-                <tr>
-                  <td colSpan={currentColumns.length + 1} className="px-4 py-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addNewRow();
-                      }}
-                      className="text-blue-500 hover:text-blue-700 text-xs w-full text-left"
-                      title="Add new row"
-                    >
-                      + Add Row
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                <div className="p-2 text-sm"></div>
+              </div>
+            ))}
+            
+            {/* Add Row Button */}
+            <div className="p-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addNewRow();
+                }}
+                className="text-blue-500 hover:text-blue-700 text-xs w-full text-left"
+                title="Add new row"
+              >
+                + Add Row
+              </button>
+            </div>
+          </div>
         );
       case "chart":
         const chartRef = React.useRef<HTMLDivElement>(null);
