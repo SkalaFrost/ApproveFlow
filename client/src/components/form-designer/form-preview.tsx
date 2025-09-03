@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Trash2, Move, BarChart3 } from "lucide-react";
+import { Trash2, Move, BarChart3, GripVertical, RotateCw } from "lucide-react";
 import ImageBackground from "./image-background";
 import type { FormComponent } from "@/types/form-designer";
 
@@ -52,6 +52,7 @@ function PreviewComponent({
   onMove: (id: string, x: number, y: number) => void;
   onResize: (id: string, width: number, height: number) => void;
   onResizeAndMove: (id: string, x: number, y: number, width: number, height: number) => void;
+  onRotate?: (id: string, rotation: number) => void;
   onClick?: (id: string, event?: React.MouseEvent) => void;
   isSelected?: boolean;
   isMultiSelected?: boolean;
@@ -72,20 +73,13 @@ function PreviewComponent({
     disabled: isAltPressed, // Disable dragging when Alt is pressed
   });
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    // Không cho phép drag component khi đang pan (Alt pressed)
-    if (e.altKey || isAltPressed) {
-      e.preventDefault();
-      e.stopPropagation();
-      return;
-    }
+  const handleDragMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (e.altKey || isAltPressed) return;
 
-    const startMouseX = e.clientX;
-    const startMouseY = e.clientY;
-    const DRAG_THRESHOLD = 6; // px - ngưỡng để bắt đầu drag
-    let isDragStarted = false;
-
-    // Tìm component container thực tế
+    setIsDragging(true);
     const componentElement = e.currentTarget.closest('.form-component') as HTMLElement;
     if (!componentElement) return;
     
@@ -94,33 +88,50 @@ function PreviewComponent({
     const offsetY = (e.clientY - rect.top) / zoom;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const deltaX = Math.abs(e.clientX - startMouseX);
-      const deltaY = Math.abs(e.clientY - startMouseY);
-      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      const canvas = document.querySelector('[data-testid="form-preview-area"]');
+      if (!canvas) return;
 
-      // Chỉ bắt đầu drag khi vượt ngưỡng
-      if (!isDragStarted && distance > DRAG_THRESHOLD) {
-        isDragStarted = true;
-        setIsDragging(true);
-        e.preventDefault(); // Ngăn selection text khi drag
-      }
-
-      // Chỉ update position khi đã bắt đầu drag
-      if (isDragStarted) {
-        const canvas = document.querySelector('[data-testid="form-preview-area"]');
-        if (!canvas) return;
-
-        const canvasRect = canvas.getBoundingClientRect();
-        const newX = Math.max(0, (e.clientX - canvasRect.left) / zoom - offsetX);
-        const newY = Math.max(0, (e.clientY - canvasRect.top) / zoom - offsetY);
-        onMove(component.id, newX, newY);
-      }
+      const canvasRect = canvas.getBoundingClientRect();
+      const newX = Math.max(0, (e.clientX - canvasRect.left) / zoom - offsetX);
+      const newY = Math.max(0, (e.clientY - canvasRect.top) / zoom - offsetY);
+      onMove(component.id, newX, newY);
     };
 
     const handleMouseUp = () => {
-      if (isDragStarted) {
-        setIsDragging(false);
-      }
+      setIsDragging(false);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleRotateMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (e.altKey || isAltPressed) return;
+
+    const componentElement = e.currentTarget.closest('.form-component') as HTMLElement;
+    if (!componentElement) return;
+    
+    const rect = componentElement.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const startAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+    const startRotation = component.rotation || 0;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+      const deltaAngle = (currentAngle - startAngle) * (180 / Math.PI);
+      const newRotation = (startRotation + deltaAngle) % 360;
+      
+      onRotate?.(component.id, newRotation);
+    };
+
+    const handleMouseUp = () => {
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
@@ -418,9 +429,9 @@ function PreviewComponent({
   };
 
   const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0) rotate(${component.rotation || 0}deg)`,
   } : {
-    transform: `translate3d(${component.position.x}px, ${component.position.y}px, 0)`,
+    transform: `translate3d(${component.position.x}px, ${component.position.y}px, 0) rotate(${component.rotation || 0}deg)`,
   };
 
   return (
@@ -451,24 +462,44 @@ function PreviewComponent({
       data-testid={`form-component-${component.id}`}
       data-component-id={component.id}
     >
-      {/* Remove button - only show on hover */}
-      <Button
-        size="sm"
-        variant="ghost"
-        className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-30"
-        onClick={onRemove}
-        data-testid={`button-remove-${component.id}`}
-      >
-        <Trash2 className="w-3 h-3" />
-      </Button>
+      {/* Control buttons - show on hover */}
+      <div className="absolute -top-2 -right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-30">
+        {/* Drag handle */}
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-6 w-6 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full cursor-move"
+          onMouseDown={handleDragMouseDown}
+          data-testid={`button-drag-${component.id}`}
+        >
+          <GripVertical className="w-3 h-3" />
+        </Button>
+        
+        {/* Rotate handle */}
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-6 w-6 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full cursor-crosshair"
+          onMouseDown={handleRotateMouseDown}
+          data-testid={`button-rotate-${component.id}`}
+        >
+          <RotateCw className="w-3 h-3" />
+        </Button>
+        
+        {/* Remove button */}
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-6 w-6 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full"
+          onClick={onRemove}
+          data-testid={`button-remove-${component.id}`}
+        >
+          <Trash2 className="w-3 h-3" />
+        </Button>
+      </div>
 
-      <div 
-        className="absolute inset-0" 
-        onMouseDown={handleMouseDown}
-      >
-        <div className="w-full h-full">
-          {renderInput()}
-        </div>
+      <div className="w-full h-full">
+        {renderInput()}
       </div>
 
       {/* Resize Handles - chỉ hiển thị cho các field có thể resize */}
