@@ -244,16 +244,6 @@ export default function FormComponentProperties({
                   <Label htmlFor="showHeader">Show Header Row</Label>
                 </div>
               </div>
-              <div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox 
-                    id="showBorders"
-                    checked={component.showBorders !== false}
-                    onCheckedChange={(checked: boolean) => onUpdate({ showBorders: checked })}
-                  />
-                  <Label htmlFor="showBorders">Show Cell Borders</Label>
-                </div>
-              </div>
               <div className="text-sm text-muted-foreground">
                 Tip: Drag the borders between columns and rows to resize them individually.
               </div>
