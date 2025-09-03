@@ -421,24 +421,18 @@ function PreviewComponent({
       data-testid={`form-component-${component.id}`}
       data-component-id={component.id}
     >
-      {/* Drag Handle Bar */}
-      <div 
-        className="absolute top-0 left-0 right-0 h-6 bg-gray-100 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between px-2 cursor-move rounded-t"
-        onMouseDown={handleMouseDown}
+      {/* Remove button - only show on hover */}
+      <Button
+        size="sm"
+        variant="ghost"
+        className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-30"
+        onClick={onRemove}
+        data-testid={`button-remove-${component.id}`}
       >
-        <Move className="w-3 h-3 text-gray-500" />
-        <Button
-          size="sm"
-          variant="ghost"
-          className="h-4 w-4 p-0"
-          onClick={onRemove}
-          data-testid={`button-remove-${component.id}`}
-        >
-          <Trash2 className="w-3 h-3 text-red-500" />
-        </Button>
-      </div>
+        <Trash2 className="w-3 h-3" />
+      </Button>
 
-      <div className="absolute inset-0 top-6 flex items-center justify-center px-3 pointer-events-none">
+      <div className="absolute inset-0 flex items-center justify-center px-3 pointer-events-none cursor-move" onMouseDown={handleMouseDown}>
         <div className="pointer-events-auto">
           {renderInput()}
         </div>
