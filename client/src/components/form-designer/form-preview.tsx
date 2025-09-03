@@ -218,6 +218,7 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.value)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
+            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
           />
         );
       case "textarea":
@@ -229,7 +230,7 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.value)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
-            className="min-h-[80px] resize-none"
+            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none resize-none"
           />
         );
       case "number":
@@ -242,6 +243,7 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.value)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
+            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
           />
         );
       case "date":
@@ -263,7 +265,7 @@ function PreviewComponent({
             value={fieldValues[component.id] || ''}
             onValueChange={handleFieldChange}
           >
-            <SelectTrigger onClick={handleFieldClick}>
+            <SelectTrigger onClick={handleFieldClick} className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none">
               <SelectValue placeholder={component.placeholder || "Select an option"} />
             </SelectTrigger>
             <SelectContent>
@@ -326,6 +328,7 @@ function PreviewComponent({
             onChange={(e) => handleFieldChange(e.target.files?.[0] || null)}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
+            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
           />
         );
       case "table":
