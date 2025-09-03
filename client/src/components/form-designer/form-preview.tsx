@@ -438,8 +438,10 @@ function PreviewComponent({
         </Button>
       </div>
 
-      <div className="absolute inset-0 flex items-center justify-center px-3">
-        {renderInput()}
+      <div className="absolute inset-0 top-6 flex items-center justify-center px-3 pointer-events-none">
+        <div className="pointer-events-auto">
+          {renderInput()}
+        </div>
       </div>
 
       {/* Resize Handles - chỉ hiển thị cho các field có thể resize */}
