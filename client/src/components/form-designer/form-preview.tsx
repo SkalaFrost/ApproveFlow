@@ -381,8 +381,30 @@ function PreviewComponent({
           />
         );
       case "table":
+        const tableRef = React.useRef<HTMLDivElement>(null);
+        
+        // Auto-resize table container
+        const autoResizeTable = () => {
+          if (tableRef.current) {
+            const table = tableRef.current.querySelector('table');
+            if (table) {
+              const tableHeight = table.scrollHeight;
+              const newHeight = Math.max(tableHeight + 24, component.size.height); // +24 for padding
+              
+              const container = tableRef.current.closest('.form-component') as HTMLElement;
+              if (container) {
+                container.style.height = newHeight + 'px';
+              }
+            }
+          }
+        };
+        
+        React.useEffect(() => {
+          autoResizeTable();
+        }, [component.columns, component.rows]);
+        
         return (
-          <div className="border rounded-md overflow-hidden">
+          <div ref={tableRef} className="border rounded-md overflow-hidden h-full">
             <table className="w-full">
               <thead className="bg-muted">
                 <tr>
@@ -419,8 +441,27 @@ function PreviewComponent({
           </div>
         );
       case "chart":
+        const chartRef = React.useRef<HTMLDivElement>(null);
+        
+        // Auto-resize chart container
+        const autoResizeChart = () => {
+          if (chartRef.current) {
+            const chartContent = chartRef.current.scrollHeight;
+            const newHeight = Math.max(chartContent + 24, 200, component.size.height); // Min 200px + padding
+            
+            const container = chartRef.current.closest('.form-component') as HTMLElement;
+            if (container) {
+              container.style.height = newHeight + 'px';
+            }
+          }
+        };
+        
+        React.useEffect(() => {
+          autoResizeChart();
+        }, [component.chartType, component.dataSource]);
+        
         return (
-          <div className="border rounded-md p-4 bg-muted/20 min-h-[200px] flex items-center justify-center">
+          <div ref={chartRef} className="border rounded-md p-4 bg-muted/20 h-full min-h-[200px] flex items-center justify-center">
             <div className="text-center">
               <BarChart3 className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
               <p className="text-sm text-muted-foreground">
@@ -509,7 +550,7 @@ function PreviewComponent({
         </Button>
       </div>
 
-      <div className={`w-full ${component.type === 'textarea' ? 'min-h-full' : 'h-full'}`}>
+      <div className={`w-full ${['textarea', 'table', 'chart'].includes(component.type) ? 'min-h-full' : 'h-full'}`}>
         {renderInput()}
       </div>
 
