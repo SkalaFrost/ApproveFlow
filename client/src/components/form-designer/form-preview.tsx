@@ -278,22 +278,13 @@ function PreviewComponent({
         );
       case "checkbox":
         return (
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id={component.id} 
-              required={component.required}
-              checked={fieldValues[component.id] || false}
-              onCheckedChange={handleFieldChange}
-              onClick={handleFieldClick}
-            />
-            <Label 
-              htmlFor={component.id}
-              className="text-sm font-normal cursor-pointer"
-              onClick={handleFieldClick}
-            >
-              {component.placeholder || "Check this box"}
-            </Label>
-          </div>
+          <Checkbox 
+            id={component.id} 
+            required={component.required}
+            checked={fieldValues[component.id] || false}
+            onCheckedChange={handleFieldChange}
+            onClick={handleFieldClick}
+          />
         );
       case "radio":
         return (
@@ -310,13 +301,6 @@ function PreviewComponent({
                   onClick={handleFieldClick}
                   className="w-4 h-4 text-primary"
                 />
-                <Label 
-                  htmlFor={`${component.id}-${index}`}
-                  className="text-sm font-normal cursor-pointer"
-                  onClick={handleFieldClick}
-                >
-                  {option}
-                </Label>
               </div>
             )) || (
               <div className="flex items-center space-x-2">
@@ -329,13 +313,6 @@ function PreviewComponent({
                   onClick={handleFieldClick}
                   className="w-4 h-4 text-primary"
                 />
-                <Label 
-                  htmlFor={component.id}
-                  className="text-sm font-normal cursor-pointer"
-                  onClick={handleFieldClick}
-                >
-                  Option 1
-                </Label>
               </div>
             )}
           </div>
@@ -460,14 +437,8 @@ function PreviewComponent({
         </Button>
       </div>
       
-      <div className="w-full pt-6">
-        <Label className="text-sm text-gray-700 font-medium mb-2 block">
-          {component.label}
-          {component.required && <span className="text-red-500 ml-1">*</span>}
-        </Label>
-        <div className="w-full">
-          {renderInput()}
-        </div>
+      <div className="w-full h-full pt-6 flex items-center justify-center">
+        {renderInput()}
       </div>
 
       {/* Resize Handles - chỉ hiển thị cho các field có thể resize */}
