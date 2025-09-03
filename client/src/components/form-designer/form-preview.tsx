@@ -74,6 +74,7 @@ function PreviewComponent({
   isAltPressed?: boolean;
   fieldValues?: Record<string, any>;
   onFieldChange?: (componentId: string, value: any) => void;
+  onUpdateComponent?: (id: string, updates: Partial<FormComponent>) => void;
 }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
@@ -477,8 +478,9 @@ function PreviewComponent({
         // Update component properties
         const updateTableProps = (props: Partial<FormComponent>) => {
           if (onUpdateComponent) {
-            // This should be passed from the parent component
-            // For now, we'll update the component directly
+            onUpdateComponent(component.id, props);
+          } else {
+            // Fallback: update component directly
             Object.assign(component, props);
           }
         };
@@ -989,6 +991,15 @@ export default function FormPreview({
     onUpdateComponent(updatedComponents);
   };
 
+  const handleUpdateComponent = (id: string, updates: Partial<FormComponent>) => {
+    if (!onUpdateComponent) return;
+
+    const updatedComponents = components.map((comp) =>
+      comp.id === id ? { ...comp, ...updates } : comp,
+    );
+    onUpdateComponent(updatedComponents);
+  };
+
   return (
     <Card className="h-full flex flex-col">
       <div className="flex-1">
@@ -1031,6 +1042,7 @@ export default function FormPreview({
                             [componentId]: value,
                           }))
                         }
+                        onUpdateComponent={handleUpdateComponent}
                       />
                     ))}
 
@@ -1098,6 +1110,7 @@ export default function FormPreview({
                         [componentId]: value,
                       }))
                     }
+                    onUpdateComponent={handleUpdateComponent}
                   />
                 ))}
 
