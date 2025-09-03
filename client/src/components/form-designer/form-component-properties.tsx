@@ -284,7 +284,7 @@ export default function FormComponentProperties({
                       </SelectItem>
                     ))}
                   {allComponents.filter(comp => comp.type === 'table').length === 0 && (
-                    <SelectItem value="" disabled>
+                    <SelectItem value="no-tables" disabled>
                       No tables available
                     </SelectItem>
                   )}
