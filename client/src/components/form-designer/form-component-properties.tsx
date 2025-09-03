@@ -223,35 +223,8 @@ export default function FormComponentProperties({
                   <Label htmlFor="showBorders">Show Cell Borders</Label>
                 </div>
               </div>
-              <div>
-                <Label htmlFor="columnWidth">Column Width (px)</Label>
-                <Input
-                  id="columnWidth"
-                  type="number"
-                  min="50"
-                  max="500"
-                  value={component.columnWidth || 120}
-                  onChange={(e) => {
-                    const width = parseInt(e.target.value) || 120;
-                    onUpdate({ columnWidth: width });
-                  }}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="rowHeight">Row Height (px)</Label>
-                <Input
-                  id="rowHeight"
-                  type="number"
-                  min="20"
-                  max="200"
-                  value={component.rowHeight || 40}
-                  onChange={(e) => {
-                    const height = parseInt(e.target.value) || 40;
-                    onUpdate({ rowHeight: height });
-                  }}
-                  className="mt-1"
-                />
+              <div className="text-sm text-muted-foreground">
+                Tip: Drag the borders between columns and rows to resize them individually.
               </div>
             </div>
           </div>

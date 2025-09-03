@@ -53,6 +53,7 @@ function PreviewComponent({
   isAltPressed = false,
   fieldValues = {},
   onFieldChange,
+  onUpdateComponent,
 }: {
   component: FormComponent;
   onRemove: () => void;
@@ -472,6 +473,15 @@ function PreviewComponent({
           component.columns = newColumns || component.columns;
           component.rows = newRows || component.rows;
         };
+        
+        // Update component properties
+        const updateTableProps = (props: Partial<FormComponent>) => {
+          if (onUpdateComponent) {
+            // This should be passed from the parent component
+            // For now, we'll update the component directly
+            Object.assign(component, props);
+          }
+        };
 
         // Edit column name
         const handleColumnEdit = (columnId: string, newLabel: string) => {
@@ -522,22 +532,74 @@ function PreviewComponent({
           updateTableData(newColumns, newRows);
         };
 
-        const columnWidth = component.columnWidth || 120;
-        const rowHeight = component.rowHeight || 40;
+        // Initialize individual column widths and row heights
+        const defaultColumnWidth = 120;
+        const defaultRowHeight = 40;
+        const columnWidths = component.columnWidths || currentColumns.map(() => defaultColumnWidth);
+        const rowHeights = component.rowHeights || (component.showHeader !== false ? [defaultRowHeight, ...currentRows.map(() => defaultRowHeight)] : currentRows.map(() => defaultRowHeight));
+        
+        // State for drag operations
+        const [isDragging, setIsDragging] = React.useState<{ type: 'column' | 'row', index: number } | null>(null);
+        const [startPos, setStartPos] = React.useState<{ x: number, y: number }>({ x: 0, y: 0 });
+        const [startSize, setStartSize] = React.useState(0);
+        
+        // Mouse event handlers for resizing
+        const handleMouseDown = (e: React.MouseEvent, type: 'column' | 'row', index: number) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragging({ type, index });
+          setStartPos({ x: e.clientX, y: e.clientY });
+          setStartSize(type === 'column' ? columnWidths[index] : rowHeights[index]);
+        };
+        
+        const handleMouseMove = React.useCallback((e: MouseEvent) => {
+          if (!isDragging) return;
+          
+          const deltaX = e.clientX - startPos.x;
+          const deltaY = e.clientY - startPos.y;
+          
+          if (isDragging.type === 'column') {
+            const newWidth = Math.max(50, startSize + deltaX);
+            const newColumnWidths = [...columnWidths];
+            newColumnWidths[isDragging.index] = newWidth;
+            updateTableProps({ columnWidths: newColumnWidths });
+          } else {
+            const newHeight = Math.max(20, startSize + deltaY);
+            const newRowHeights = [...rowHeights];
+            newRowHeights[isDragging.index] = newHeight;
+            updateTableProps({ rowHeights: newRowHeights });
+          }
+        }, [isDragging, startPos, startSize, columnWidths, rowHeights, updateTableProps]);
+        
+        const handleMouseUp = React.useCallback(() => {
+          setIsDragging(null);
+        }, []);
+        
+        // Add global mouse event listeners
+        React.useEffect(() => {
+          if (isDragging) {
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+            return () => {
+              document.removeEventListener('mousemove', handleMouseMove);
+              document.removeEventListener('mouseup', handleMouseUp);
+            };
+          }
+        }, [isDragging, handleMouseMove, handleMouseUp]);
         const showBorders = component.showBorders !== false;
         const borderStyle = showBorders ? '1px dashed #d1d5db' : 'none';
         
         return (
-          <div ref={tableRef} className="inline-block">
+          <div ref={tableRef} className="inline-block relative">
             {/* Header Row - conditional */}
             {component.showHeader !== false && (
-              <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, ${columnWidth}px)` }}>
+              <div className="grid gap-0 bg-muted/50" style={{ gridTemplateColumns: columnWidths.map(w => `${w}px`).join(' ') }}>
                 {currentColumns.map((col, colIndex) => (
                   <div 
                     key={col.id} 
                     className="text-sm font-medium p-2"
                     style={{
-                      height: `${rowHeight}px`,
+                      height: `${rowHeights[0]}px`,
                       borderRight: colIndex < currentColumns.length - 1 ? borderStyle : 'none',
                       borderBottom: showBorders ? borderStyle : 'none'
                     }} 
@@ -578,13 +640,13 @@ function PreviewComponent({
             
             {/* Data Rows */}
             {currentRows.map((row, rowIndex) => (
-              <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: `repeat(${currentColumns.length}, ${columnWidth}px)` }}>
+              <div key={rowIndex} className="grid gap-0" style={{ gridTemplateColumns: columnWidths.map(w => `${w}px`).join(' ') }}>
                 {currentColumns.map((col, colIndex) => (
                   <div 
                     key={col.id} 
                     className="text-sm p-2"
                     style={{
-                      height: `${rowHeight}px`,
+                      height: `${rowHeights[component.showHeader !== false ? rowIndex + 1 : rowIndex]}px`,
                       borderRight: colIndex < currentColumns.length - 1 ? borderStyle : 'none',
                       borderBottom: rowIndex < currentRows.length - 1 ? borderStyle : 'none'
                     }}
@@ -622,6 +684,48 @@ function PreviewComponent({
                 ))}
               </div>
             ))}
+            
+            {/* Column Resize Handles */}
+            {currentColumns.slice(0, -1).map((_, colIndex) => {
+              const leftOffset = columnWidths.slice(0, colIndex + 1).reduce((sum, width) => sum + width, 0);
+              const totalHeight = (component.showHeader !== false ? rowHeights[0] : 0) + rowHeights.slice(component.showHeader !== false ? 1 : 0).reduce((sum, height) => sum + height, 0);
+              
+              return (
+                <div
+                  key={`col-resize-${colIndex}`}
+                  className="absolute bg-transparent hover:bg-blue-300 hover:opacity-50 cursor-col-resize z-10"
+                  style={{
+                    left: `${leftOffset - 2}px`,
+                    top: 0,
+                    width: '4px',
+                    height: `${totalHeight}px`
+                  }}
+                  onMouseDown={(e) => handleMouseDown(e, 'column', colIndex)}
+                  title="Drag to resize column"
+                />
+              );
+            })}
+            
+            {/* Row Resize Handles */}
+            {(component.showHeader !== false ? rowHeights.slice(0, -1) : rowHeights.slice(0, -1)).map((_, rowIndex) => {
+              const topOffset = rowHeights.slice(0, rowIndex + 1).reduce((sum, height) => sum + height, 0);
+              const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
+              
+              return (
+                <div
+                  key={`row-resize-${rowIndex}`}
+                  className="absolute bg-transparent hover:bg-blue-300 hover:opacity-50 cursor-row-resize z-10"
+                  style={{
+                    left: 0,
+                    top: `${topOffset - 2}px`,
+                    width: `${totalWidth}px`,
+                    height: '4px'
+                  }}
+                  onMouseDown={(e) => handleMouseDown(e, 'row', rowIndex)}
+                  title="Drag to resize row"
+                />
+              );
+            })}
           </div>
         );
       case "chart":
