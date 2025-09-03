@@ -80,30 +80,47 @@ function PreviewComponent({
       return;
     }
 
-    setIsDragging(true);
-    // Tìm component container thực tế thay vì current target
+    const startMouseX = e.clientX;
+    const startMouseY = e.clientY;
+    const DRAG_THRESHOLD = 6; // px - ngưỡng để bắt đầu drag
+    let isDragStarted = false;
+
+    // Tìm component container thực tế
     const componentElement = e.currentTarget.closest('.form-component') as HTMLElement;
     if (!componentElement) return;
     
     const rect = componentElement.getBoundingClientRect();
-    // ⚡ quan trọng: chia cho zoom để offset đúng khi zoom khác 100%
     const offsetX = (e.clientX - rect.left) / zoom;
     const offsetY = (e.clientY - rect.top) / zoom;
-    const startPosX = component.position.x;
-    const startPosY = component.position.y;
 
     const handleMouseMove = (e: MouseEvent) => {
-      const canvas = document.querySelector('[data-testid="form-preview-area"]');
-      if (!canvas) return;
+      const deltaX = Math.abs(e.clientX - startMouseX);
+      const deltaY = Math.abs(e.clientY - startMouseY);
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
 
-      const canvasRect = canvas.getBoundingClientRect();
-      const newX = Math.max(0, (e.clientX - canvasRect.left) / zoom - offsetX);
-      const newY = Math.max(0, (e.clientY - canvasRect.top) / zoom - offsetY);
-      onMove(component.id, newX, newY);
+      // Chỉ bắt đầu drag khi vượt ngưỡng
+      if (!isDragStarted && distance > DRAG_THRESHOLD) {
+        isDragStarted = true;
+        setIsDragging(true);
+        e.preventDefault(); // Ngăn selection text khi drag
+      }
+
+      // Chỉ update position khi đã bắt đầu drag
+      if (isDragStarted) {
+        const canvas = document.querySelector('[data-testid="form-preview-area"]');
+        if (!canvas) return;
+
+        const canvasRect = canvas.getBoundingClientRect();
+        const newX = Math.max(0, (e.clientX - canvasRect.left) / zoom - offsetX);
+        const newY = Math.max(0, (e.clientY - canvasRect.top) / zoom - offsetY);
+        onMove(component.id, newX, newY);
+      }
     };
 
     const handleMouseUp = () => {
-      setIsDragging(false);
+      if (isDragStarted) {
+        setIsDragging(false);
+      }
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
@@ -273,13 +290,19 @@ function PreviewComponent({
               <SelectValue placeholder={component.placeholder || "Select an option"} />
             </SelectTrigger>
             <SelectContent>
-              {component.options?.filter(option => option && option.trim() !== '').map((option, index) => (
-                <SelectItem key={index} value={option}>
-                  {option}
-                </SelectItem>
-              )) || (
-                <SelectItem value="option1">Option 1</SelectItem>
-              )}
+              {(component.options && component.options.length > 0) ? 
+                component.options
+                  .filter(option => option && option.trim() !== '')
+                  .map((option, index) => (
+                    <SelectItem key={index} value={option.trim()}>
+                      {option}
+                    </SelectItem>
+                  )) : (
+                  <>
+                    <SelectItem value="option1">Option 1</SelectItem>
+                    <SelectItem value="option2">Option 2</SelectItem>
+                  </>
+                )}
             </SelectContent>
           </Select>
         );
@@ -440,13 +463,8 @@ function PreviewComponent({
       </Button>
 
       <div 
-        className="absolute inset-0 cursor-move" 
-        onMouseDown={(e) => {
-          // Chỉ drag khi click vào vùng trống, không phải input
-          if (e.target === e.currentTarget) {
-            handleMouseDown(e);
-          }
-        }}
+        className="absolute inset-0" 
+        onMouseDown={handleMouseDown}
       >
         <div className="w-full h-full">
           {renderInput()}
