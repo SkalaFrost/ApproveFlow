@@ -37,7 +37,7 @@ interface FormPreviewProps {
 }
 
 // Danh sách các field type có thể resize
-const RESIZABLE_FIELD_TYPES = ["textarea", "text", "number", "table"];
+const RESIZABLE_FIELD_TYPES = ["textarea", "text", "number", "table", "chart"];
 
 // Default table structure
 const defaultColumns = [
