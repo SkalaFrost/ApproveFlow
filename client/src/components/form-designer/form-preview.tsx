@@ -273,7 +273,7 @@ function PreviewComponent({
               <SelectValue placeholder={component.placeholder || "Select an option"} />
             </SelectTrigger>
             <SelectContent>
-              {component.options?.map((option, index) => (
+              {component.options?.filter(option => option && option.trim() !== '').map((option, index) => (
                 <SelectItem key={index} value={option}>
                   {option}
                 </SelectItem>
