@@ -109,7 +109,7 @@ function PreviewComponent({
       type: "form-component",
       component,
     },
-    disabled: isAltPressed,
+    disabled: isAltPressed, // Disable dragging when Alt is pressed
   });
 
   const handleDragMouseDown = (e: React.MouseEvent) => {
@@ -119,6 +119,7 @@ function PreviewComponent({
     if (e.altKey || isAltPressed) return;
 
     setIsDragging(true);
+    // Set cursor to grabbing during drag
     document.body.style.cursor = "grabbing";
 
     const componentElement = e.currentTarget.closest(
@@ -126,55 +127,93 @@ function PreviewComponent({
     ) as HTMLElement;
     if (!componentElement) return;
 
+    // Calculate offset from the component's current position, not from the button
     const rect = componentElement.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
+    const canvas = document.querySelector('[data-testid="form-preview-area"]');
+    if (!canvas) return;
 
-    const handleDragMove = (e: MouseEvent) => {
-      const newX = (e.clientX - offsetX) / zoom;
-      const newY = (e.clientY - offsetY) / zoom;
+    const canvasRect = canvas.getBoundingClientRect();
+    const offsetX = (e.clientX - rect.left) / zoom;
+    const offsetY = (e.clientY - rect.top) / zoom;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const newX = Math.max(0, (e.clientX - canvasRect.left) / zoom - offsetX);
+      const newY = Math.max(0, (e.clientY - canvasRect.top) / zoom - offsetY);
       onMove(component.id, newX, newY);
     };
 
-    const handleDragUp = () => {
+    const handleMouseUp = () => {
       setIsDragging(false);
+      // Reset cursor
       document.body.style.cursor = "";
-      document.removeEventListener("mousemove", handleDragMove);
-      document.removeEventListener("mouseup", handleDragUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
     };
 
-    document.addEventListener("mousemove", handleDragMove);
-    document.addEventListener("mouseup", handleDragUp);
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
   };
 
-  const handleResizeMouseDown = (
-    e: React.MouseEvent,
-    handle: "se" | "ne" | "sw" | "nw" | "n" | "s" | "e" | "w",
-  ) => {
+  const handleRotateMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (!RESIZABLE_FIELD_TYPES.includes(component.type)) return;
+    if (e.altKey || isAltPressed) return;
 
-    setIsResizing(true);
+    // Set cursor to crosshair during rotation
+    document.body.style.cursor = "crosshair";
 
     const componentElement = e.currentTarget.closest(
       ".form-component",
     ) as HTMLElement;
     if (!componentElement) return;
 
-    const startX = e.clientX / zoom;
-    const startY = e.clientY / zoom;
+    const rect = componentElement.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+
+    const startAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+    const startRotation = component.rotation || 0;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+      const deltaAngle = (currentAngle - startAngle) * (180 / Math.PI);
+      const newRotation = (startRotation + deltaAngle) % 360;
+
+      onRotate?.(component.id, newRotation);
+    };
+
+    const handleMouseUp = () => {
+      // Reset cursor
+      document.body.style.cursor = "";
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleResizeMouseDown = (e: React.MouseEvent, direction: string) => {
+    // Không cho phép resize khi đang pan (Alt pressed)
+    if (e.altKey || isAltPressed) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+
+    e.stopPropagation();
+    setIsResizing(true);
+    const startX = e.clientX;
+    const startY = e.clientY;
     const startWidth = component.size.width;
     const startHeight = component.size.height;
     const startPosX = component.position.x;
     const startPosY = component.position.y;
 
     const handleResizeMove = (e: MouseEvent) => {
-      const currentX = e.clientX / zoom;
-      const currentY = e.clientY / zoom;
-      const deltaX = currentX - startX;
-      const deltaY = currentY - startY;
+      const deltaX = (e.clientX - startX) / zoom;
+      const deltaY = (e.clientY - startY) / zoom;
 
       let newWidth = startWidth;
       let newHeight = startHeight;
@@ -182,31 +221,64 @@ function PreviewComponent({
       let newY = startPosY;
       let positionChanged = false;
 
-      if (handle.includes("e")) {
-        newWidth = Math.max(50, startWidth + deltaX);
-      }
-      if (handle.includes("w")) {
-        newWidth = Math.max(50, startWidth - deltaX);
-        newX = Math.max(0, startPosX + deltaX);
-        positionChanged = true;
-      }
-      if (handle.includes("s")) {
-        newHeight = Math.max(30, startHeight + deltaY);
-      }
-      if (handle.includes("n")) {
-        newHeight = Math.max(30, startHeight - deltaY);
-        newY = Math.max(0, startPosY + deltaY);
-        positionChanged = true;
+      switch (direction) {
+        case "se": // Southeast - chỉ thay đổi kích thước
+          newWidth = Math.max(100, startWidth + deltaX);
+          newHeight = Math.max(40, startHeight + deltaY);
+          break;
+        case "sw": // Southwest - thay đổi X position
+          newWidth = Math.max(100, startWidth - deltaX);
+          newHeight = Math.max(40, startHeight + deltaY);
+          newX = startPosX + (startWidth - newWidth);
+          positionChanged = true;
+          break;
+        case "ne": // Northeast - thay đổi Y position
+          newWidth = Math.max(100, startWidth + deltaX);
+          newHeight = Math.max(40, startHeight - deltaY);
+          newY = startPosY + (startHeight - newHeight);
+          positionChanged = true;
+          break;
+        case "nw": // Northwest - thay đổi cả X và Y position
+          newWidth = Math.max(100, startWidth - deltaX);
+          newHeight = Math.max(40, startHeight - deltaY);
+          newX = startPosX + (startWidth - newWidth);
+          newY = startPosY + (startHeight - newHeight);
+          positionChanged = true;
+          break;
+        case "e": // East - chỉ thay đổi chiều rộng
+          newWidth = Math.max(100, startWidth + deltaX);
+          break;
+        case "w": // West - thay đổi chiều rộng và X position
+          newWidth = Math.max(100, startWidth - deltaX);
+          newX = startPosX + (startWidth - newWidth);
+          positionChanged = true;
+          break;
+        case "n": // North - thay đổi chiều cao và Y position
+          newHeight = Math.max(40, startHeight - deltaY);
+          newY = startPosY + (startHeight - newHeight);
+          positionChanged = true;
+          break;
+        case "s": // South - chỉ thay đổi chiều cao
+          newHeight = Math.max(40, startHeight + deltaY);
+          break;
       }
 
-      if (component.type === "table") {
+      // For table components, scale row heights and column widths proportionally
+      if (component.type === 'table' && onUpdateComponent) {
+        const oldWidth = startWidth;
+        const oldHeight = startHeight;
+        const widthRatio = newWidth / oldWidth;
+        const heightRatio = newHeight / oldHeight;
+        
+        // Scale column widths proportionally
         const cols = component.columns || defaultColumns;
         const rows = component.rows || defaultRows;
         const currentColumnWidths = component.columnWidths || cols.map(() => 120);
-        const newColumnWidths = currentColumnWidths.map(width => Math.max(50, width * newWidth/startWidth));
+        const newColumnWidths = currentColumnWidths.map(width => Math.max(50, width * widthRatio));
         
+        // Scale row heights proportionally  
         const currentRowHeights = component.rowHeights || (component.showHeader !== false ? [40, ...rows.map(() => 40)] : rows.map(() => 40));
-        const newRowHeights = currentRowHeights.map(height => Math.max(20, height * newHeight/startHeight));
+        const newRowHeights = currentRowHeights.map(height => Math.max(20, height * heightRatio));
         
         const updates: Partial<FormComponent> = {
           size: { width: newWidth, height: newHeight },
@@ -218,8 +290,9 @@ function PreviewComponent({
           updates.position = { x: Math.max(0, newX), y: Math.max(0, newY) };
         }
         
-        onUpdateComponent?.(component.id, updates);
+        onUpdateComponent(component.id, updates);
       } else {
+        // Regular component resizing
         if (positionChanged) {
           onResizeAndMove(
             component.id,
@@ -243,7 +316,6 @@ function PreviewComponent({
     document.addEventListener("mousemove", handleResizeMove);
     document.addEventListener("mouseup", handleResizeUp);
   };
-
   const handleFieldChange = (value: any) => {
     onFieldChange?.(component.id, value);
   };
@@ -262,7 +334,9 @@ function PreviewComponent({
         return (
           <Input
             type={component.type}
-            placeholder={component.placeholder || `Enter ${component.label.toLowerCase()}`}
+            placeholder={
+              component.placeholder || `Enter ${component.label.toLowerCase()}`
+            }
             required={component.required}
             value={fieldValues[component.id] || ""}
             onChange={(e) => handleFieldChange(e.target.value)}
@@ -271,20 +345,21 @@ function PreviewComponent({
             className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
           />
         );
-
       case "textarea":
         const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
+        // Auto-resize function
         const autoResize = (textarea: HTMLTextAreaElement) => {
           textarea.style.height = "auto";
           textarea.style.height = Math.max(textarea.scrollHeight, 60) + "px";
 
+          // Update parent container height
           const container = textarea.closest(".form-component") as HTMLElement;
           if (container) {
             const newHeight = Math.max(
               textarea.scrollHeight + 24,
               component.size.height,
-            );
+            ); // +24 for padding
             container.style.height = newHeight + "px";
           }
         };
@@ -298,7 +373,9 @@ function PreviewComponent({
         return (
           <Textarea
             ref={textareaRef}
-            placeholder={component.placeholder || `Enter ${component.label.toLowerCase()}`}
+            placeholder={
+              component.placeholder || `Enter ${component.label.toLowerCase()}`
+            }
             required={component.required}
             value={fieldValues[component.id] || ""}
             onChange={(e) => {
@@ -307,31 +384,64 @@ function PreviewComponent({
             }}
             onFocus={handleFieldFocus}
             onClick={handleFieldClick}
-            className="border-0 rounded-none bg-transparent w-full resize-none min-h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
-            style={{ overflow: "hidden" }}
+            className="border-0 rounded-none bg-transparent w-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none resize-none overflow-hidden [&::-webkit-scrollbar]:hidden"
+            style={{
+              height: "auto",
+              minHeight: "60px",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }}
           />
         );
-
+      case "number":
+        return (
+          <Input
+            type="number"
+            placeholder={component.placeholder || "0"}
+            required={component.required}
+            value={fieldValues[component.id] || ""}
+            onChange={(e) => handleFieldChange(e.target.value)}
+            onFocus={handleFieldFocus}
+            onClick={handleFieldClick}
+            className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
+          />
+        );
+      case "date":
+        return (
+          <Input
+            type="date"
+            required={component.required}
+            value={fieldValues[component.id] || ""}
+            onChange={(e) => handleFieldChange(e.target.value)}
+            onFocus={handleFieldFocus}
+            onClick={handleFieldClick}
+            className="border-0 rounded-none bg-transparent w-full h-full focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none text-center flex items-center justify-center [&::-webkit-calendar-picker-indicator]:bg-transparent"
+          />
+        );
       case "select":
         return (
           <Select
-            value={fieldValues[component.id] || ""}
+            required={component.required}
+            value={fieldValues[component.id] || undefined}
             onValueChange={handleFieldChange}
           >
             <SelectTrigger
-              onFocus={handleFieldFocus}
               onClick={handleFieldClick}
               className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
             >
-              <SelectValue placeholder={component.placeholder || "Select option"} />
+              <SelectValue
+                placeholder={component.placeholder || "Select an option"}
+              />
             </SelectTrigger>
             <SelectContent>
-              {component.options?.length ? (
-                component.options.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))
+              {component.options && component.options.length > 0 ? (
+                component.options
+                  .filter((option) => option && option.trim() !== "")
+                  .map((option, index) => (
+                    <SelectItem key={index} value={option.trim()}>
+                      {option}
+                    </SelectItem>
+                  ))
               ) : (
                 <>
                   <SelectItem value="option1">Option 1</SelectItem>
@@ -341,7 +451,6 @@ function PreviewComponent({
             </SelectContent>
           </Select>
         );
-
       case "checkbox":
         return (
           <Checkbox
@@ -352,7 +461,6 @@ function PreviewComponent({
             onClick={handleFieldClick}
           />
         );
-
       case "file":
         return (
           <Input
@@ -364,14 +472,16 @@ function PreviewComponent({
             className="border-0 rounded-none bg-transparent w-full h-full text-center focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none"
           />
         );
-
       case "table":
         const tableRef = React.useRef<HTMLTableElement>(null);
         const [editingCell, setEditingCell] = React.useState<{
           row: number;
           col: string;
         } | null>(null);
-        const [editingColumn, setEditingColumn] = React.useState<string | null>(null);
+        const [editingColumn, setEditingColumn] = React.useState<string | null>(
+          null,
+        );
+
 
         const currentColumns = component.columns || defaultColumns;
         const currentRows = component.rows || defaultRows;
@@ -379,10 +489,13 @@ function PreviewComponent({
         // Auto-resize table container to match content exactly
         const autoResizeTable = () => {
           if (tableRef.current && !isResizing) {
-            const totalHeight = (component.rowHeights || []).reduce((sum, height) => sum + height, 0);
-            const totalWidth = (component.columnWidths || []).reduce((sum, width) => sum + width, 0);
+            // Calculate exact total height from row heights
+            const totalHeight = rowHeights.reduce((sum, height) => sum + height, 0);
+            // Calculate exact total width from column widths  
+            const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
             
-            if (onUpdateComponent && totalHeight > 0 && totalWidth > 0) {
+            // Update component size to exactly match table content
+            if (onUpdateComponent) {
               onUpdateComponent(component.id, {
                 size: {
                   width: totalWidth,
@@ -397,36 +510,70 @@ function PreviewComponent({
           autoResizeTable();
         }, [component.columns, component.rows, component.columnWidths, component.rowHeights]);
 
+        // Update component data (simplified - just update the component directly)
         const updateTableData = (newColumns?: any[], newRows?: any[]) => {
+          // For now, we'll just store the data in component state
+          // In a real implementation, you'd want to update the parent state
           component.columns = newColumns || component.columns;
           component.rows = newRows || component.rows;
         };
         
+        // Update component properties
         const updateTableProps = (props: Partial<FormComponent>) => {
           if (onUpdateComponent) {
             onUpdateComponent(component.id, props);
+          } else {
+            // Fallback: update component directly
+            Object.assign(component, props);
           }
         };
 
-        const handleCellEdit = (rowIndex: number, colId: string, value: string) => {
-          const newRows = [...currentRows];
-          newRows[rowIndex] = { ...newRows[rowIndex], [colId]: value };
-          updateTableData(currentColumns, newRows);
-          setEditingCell(null);
-        };
-
-        const handleColumnEdit = (colId: string, newLabel: string) => {
-          const newColumns = currentColumns.map(col => 
-            col.id === colId ? { ...col, label: newLabel } : col
+        // Edit column name
+        const handleColumnEdit = (columnId: string, newLabel: string) => {
+          const newColumns = currentColumns.map((col) =>
+            col.id === columnId ? { ...col, label: newLabel } : col,
           );
           updateTableData(newColumns, currentRows);
           setEditingColumn(null);
         };
 
-        const addColumn = () => {
+        // Edit cell data
+        const handleCellEdit = (
+          rowIndex: number,
+          columnId: string,
+          newValue: string,
+        ) => {
+          const newRows = [...currentRows];
+          newRows[rowIndex] = { ...newRows[rowIndex], [columnId]: newValue };
+          updateTableData(currentColumns, newRows);
+          setEditingCell(null);
+        };
+
+        // Add new row
+        const addNewRow = () => {
+          const newRow: any = {};
+          currentColumns.forEach((col) => {
+            newRow[col.id] = `New ${col.label}`;
+          });
+          const newRows = [...currentRows, newRow];
+          updateTableData(currentColumns, newRows);
+        };
+
+        // Add new column
+        const addNewColumn = () => {
           const newColId = `col${currentColumns.length + 1}`;
-          const newColumns = [...currentColumns, { id: newColId, label: `Column ${currentColumns.length + 1}`, type: "text" }];
-          const newRows = currentRows.map(row => ({ ...row, [newColId]: "New Data" }));
+          const newColumns = [
+            ...currentColumns,
+            {
+              id: newColId,
+              label: `Column ${currentColumns.length + 1}`,
+              type: "text",
+            },
+          ];
+          const newRows = currentRows.map((row) => ({
+            ...row,
+            [newColId]: "New Data",
+          }));
           updateTableData(newColumns, newRows);
         };
 
@@ -484,7 +631,6 @@ function PreviewComponent({
             };
           }
         }, [isDragging, handleMouseMove, handleMouseUp]);
-
         // Get table styling properties
         const showBorders = component.showBorders !== false;
         const borderStyle = component.borderStyle || 'solid';
@@ -497,14 +643,34 @@ function PreviewComponent({
         const alternateRows = component.alternateRowColors || false;
         const evenRowColor = component.evenRowColor || '#ffffff';
         const oddRowColor = component.oddRowColor || '#f9fafb';
+        const tableRowHeight = component.rowHeight || 40;
         
         // Table functionality properties
         const showRowNumbers = component.showRowNumbers || false;
         const fixedHeader = component.fixedHeader || false;
-
+        const allowEdit = component.allowEdit || false;
+        
         return (
           <div ref={tableRef} className="inline-block relative w-full h-full">
-            {/* Header Row */}
+            {/* Row Numbers Header */}
+            {showRowNumbers && component.showHeader !== false && (
+              <div className="absolute left-0 top-0 w-8 z-10">
+                <div 
+                  className="text-xs font-medium p-1 text-center border-r border-b"
+                  style={{
+                    height: `${rowHeights[0]}px`,
+                    backgroundColor: headerBgColor,
+                    color: headerTextColor,
+                    borderColor: borderColor,
+                    borderStyle: borderStyle
+                  }}
+                >
+                  #
+                </div>
+              </div>
+            )}
+            
+            {/* Header Row - conditional */}
             {component.showHeader !== false && (
               <div 
                 className={`grid gap-0 ${fixedHeader ? 'sticky top-0 z-20' : ''}`} 
@@ -602,44 +768,39 @@ function PreviewComponent({
                           textAlign: (col as any).alignment || 'left'
                         }}
                       >
-                        {editingCell?.row === rowIndex && editingCell?.col === col.id ? (
-                          <input
-                            type="text"
-                            defaultValue={(row as any)[col.id] || ""}
-                            className="bg-transparent border-none outline-none w-full"
-                            onBlur={(e) => handleCellEdit(rowIndex, col.id, e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                handleCellEdit(rowIndex, col.id, e.currentTarget.value);
-                              }
-                              if (e.key === "Escape") {
-                                setEditingCell(null);
-                              }
-                            }}
-                            autoFocus
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        ) : (
-                          <span
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (component.allowEdit) {
-                                setEditingCell({ row: rowIndex, col: col.id });
-                              }
-                            }}
-                            className={`${component.allowEdit ? 'cursor-pointer hover:bg-muted/20 px-1 py-1 rounded' : ''}`}
-                            title={component.allowEdit ? "Click to edit cell" : undefined}
-                          >
-                            {(row as any)[col.id] || ""}
-                          </span>
-                        )}
-                      </div>
-                    ))}
+                    {editingCell?.row === rowIndex && editingCell?.col === col.id ? (
+                      <input
+                        type="text"
+                        defaultValue={(row as any)[col.id] || ""}
+                        className="bg-transparent border border-gray-300 rounded px-1 py-1 w-full text-sm"
+                        onBlur={(e) => handleCellEdit(rowIndex, col.id, e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            handleCellEdit(rowIndex, col.id, e.currentTarget.value);
+                          }
+                          if (e.key === "Escape") {
+                            setEditingCell(null);
+                          }
+                        }}
+                        autoFocus
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <span
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEditingCell({ row: rowIndex, col: col.id });
+                        }}
+                        className="cursor-pointer hover:bg-muted/50 px-1 py-1 rounded block min-h-[20px] break-words overflow-wrap-anywhere"
+                        title="Click to edit cell"
+                      >
+                        {(row as any)[col.id] || "-"}
+                      </span>
+                    )}
                   </div>
-                </div>
-              );
-            })}
-
+                ))}
+              </div>
+            );
             {/* Column resize handles */}
             {columnWidths.slice(0, -1).map((_, colIndex) => {
               const leftOffset = columnWidths.slice(0, colIndex + 1).reduce((sum, width) => sum + width, 0);
@@ -683,7 +844,6 @@ function PreviewComponent({
             })}
           </div>
         );
-
       case "chart":
         // Get data from the source table
         const sourceTable = component.dataSource ? 
@@ -765,6 +925,7 @@ function PreviewComponent({
               ))}
               
               {/* Chart Area with Coordinate System */}
+              {/* Grid Lines */}
               <div 
                 className="relative w-full h-full border-l-2 border-b-2"
                 style={{ borderColor: gridColor }}
@@ -782,116 +943,53 @@ function PreviewComponent({
                   </div>
                 ))}
                 
-                {/* Bar Chart */}
-                {component.chartType === 'bar' && (
-                  <div className="absolute bottom-0 left-0 w-full flex items-end">
-                    {chartData.map((data: any, index: number) => {
-                      const height = maxValue > 0 ? Math.max(2, ((data.y - minValue) / (maxValue - minValue)) * 80) : 2;
-                      const barColor = component.colors?.[index % (component.colors?.length || 1)] || '#3b82f6';
-                      
-                      return (
+                {/* Bar Chart Data */}
+                <div className="flex items-end justify-center h-full px-2 gap-4">
+                  {chartData.slice(0, 8).map((data: any, index: number) => {
+                    const barColor = component.colors && component.colors[index % component.colors.length] || '#3b82f6';
+                    const barHeight = maxValue === minValue ? '40px' : `${Math.max(4, ((data.y - minValue) / (maxValue - minValue)) * 80)}%`;
+                    
+                    return (
+                      <div key={index} className="flex flex-col items-center flex-1 min-w-0 h-full justify-end relative">
                         <div 
-                          key={index}
-                          className="flex-1 mx-1 relative group"
-                        >
-                          <div
-                            className="w-full transition-colors hover:opacity-80"
-                            style={{
-                              height: `${height}%`,
-                              backgroundColor: barColor,
-                              minHeight: '2px'
-                            }}
-                            title={`${data.x}: ${formatValue(data.y)}`}
-                          />
-                          
-                          {/* Show values on bars if enabled */}
-                          {component.showValues && (
-                            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-xs text-gray-600 whitespace-nowrap">
-                              {formatValue(data.y)}
-                            </div>
-                          )}
-                          
-                          {/* X-axis labels */}
-                          {showAxisLabels && (
-                            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-600 whitespace-nowrap max-w-[60px] overflow-hidden text-ellipsis">
-                              {String(data.x)}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-                
-                {/* Line Chart */}
-                {component.chartType === 'line' && (
-                  <svg className="absolute inset-0 w-full h-full">
-                    {chartData.map((data: any, index: number) => {
-                      if (index === 0) return null;
-                      
-                      const prevData = chartData[index - 1];
-                      const x1 = ((index - 1) / (chartData.length - 1)) * 100;
-                      const x2 = (index / (chartData.length - 1)) * 100;
-                      const y1 = 100 - (maxValue > 0 ? ((prevData.y - minValue) / (maxValue - minValue)) * 80 : 0);
-                      const y2 = 100 - (maxValue > 0 ? ((data.y - minValue) / (maxValue - minValue)) * 80 : 0);
-                      
-                      return (
-                        <line
-                          key={index}
-                          x1={`${x1}%`}
-                          y1={`${y1}%`}
-                          x2={`${x2}%`}
-                          y2={`${y2}%`}
-                          stroke={component.colors?.[0] || '#3b82f6'}
-                          strokeWidth="2"
+                          className="rounded-t-sm w-full min-h-[4px] mb-0"
+                          style={{ 
+                            height: barHeight,
+                            backgroundColor: barColor
+                          }}
+                          title={`${data.x}: ${formatValue(data.y)}`}
                         />
-                      );
-                    })}
-                    
-                    {/* Data points */}
-                    {chartData.map((data: any, index: number) => {
-                      const x = (index / (chartData.length - 1)) * 100;
-                      const y = 100 - (maxValue > 0 ? ((data.y - minValue) / (maxValue - minValue)) * 80 : 0);
-                      
-                      return (
-                        <circle
-                          key={index}
-                          cx={`${x}%`}
-                          cy={`${y}%`}
-                          r="3"
-                          fill={component.colors?.[0] || '#3b82f6'}
-                        >
-                          <title>{`${data.x}: ${formatValue(data.y)}`}</title>
-                        </circle>
-                      );
-                    })}
-                  </svg>
-                )}
-                
-                {/* Area Chart */}
-                {component.chartType === 'area' && (
-                  <svg className="absolute inset-0 w-full h-full">
-                    {/* Create area path */}
-                    <defs>
-                      <linearGradient id={`gradient-${component.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" style={{ stopColor: component.colors?.[0] || '#3b82f6', stopOpacity: 0.6 }} />
-                        <stop offset="100%" style={{ stopColor: component.colors?.[0] || '#3b82f6', stopOpacity: 0.1 }} />
-                      </linearGradient>
-                    </defs>
-                    
-                    <path
-                      d={`M 0,100% ${chartData.map((data: any, index: number) => {
-                        const x = (index / (chartData.length - 1)) * 100;
-                        const y = 100 - (maxValue > 0 ? ((data.y - minValue) / (maxValue - minValue)) * 80 : 0);
-                        return `L ${x}%,${y}%`;
-                      }).join(' ')} L 100%,100% Z`}
-                      fill={`url(#gradient-${component.id})`}
-                      stroke={component.colors?.[0] || '#3b82f6'}
-                      strokeWidth="2"
-                    />
-                  </svg>
-                )}
+                        {/* Show values on bars */}
+                        {component.showValues && (
+                          <div 
+                            className="absolute text-xs text-gray-700 font-medium whitespace-nowrap"
+                            style={{
+                              top: component.valuePosition === 'inside' ? '50%' : 
+                                   component.valuePosition === 'center' ? '50%' : '-16px',
+                              transform: component.valuePosition === 'inside' || component.valuePosition === 'center' ? 'translateY(-50%)' : 'none'
+                            }}
+                          >
+                            {formatValue(data.y)}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
+              
+              {/* X-Axis Labels */}
+              {showAxisLabels && (
+                <div className="flex justify-center mt-2 px-2 gap-4">
+                  {chartData.slice(0, 8).map((data: any, index: number) => (
+                    <div key={index} className="flex-1 min-w-0 text-center">
+                      <div className="text-xs text-gray-600 truncate">
+                        {String(data.x).slice(0, 8)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
               
               {/* X-Axis Label */}
               {showAxisLabels && xAxisTitle && (
@@ -922,7 +1020,6 @@ function PreviewComponent({
             </div>
           </div>
         );
-
       default:
         return null;
     }
@@ -960,114 +1057,93 @@ function PreviewComponent({
         }`}
         onMouseDown={(e) => {
           // Chỉ cho phép selection, không drag khi click vào component body
-          if (!isAltPressed) {
-            onClick?.(component.id, e);
-          }
+          e.stopPropagation();
         }}
-        data-testid={`preview-component-${component.id}`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick?.(component.id, e);
+        }}
+        data-testid={`form-component-${component.id}`}
+        data-component-id={component.id}
       >
-        {/* Component Label */}
-        <div className="absolute -top-6 left-0 text-xs text-muted-foreground bg-white px-1 rounded">
-          {component.label}
+        {/* Control buttons - positioned above the form field */}
+        <div className="absolute -top-8 right-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity z-50">
+          {/* Drag handle */}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 w-7 p-0 bg-blue-500 hover:bg-blue-600 text-white rounded-full cursor-grab hover:cursor-grab active:cursor-grabbing shadow-md border border-white"
+            onMouseDown={handleDragMouseDown}
+            data-testid={`button-drag-${component.id}`}
+          >
+            <GripVertical className="w-3 h-3" />
+          </Button>
+
+          {/* Rotate handle */}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 w-7 p-0 bg-green-500 hover:bg-green-600 text-white rounded-full cursor-crosshair shadow-md border border-white"
+            onMouseDown={handleRotateMouseDown}
+            data-testid={`button-rotate-${component.id}`}
+          >
+            <RotateCw className="w-3 h-3" />
+          </Button>
+
+          {/* Remove button */}
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-7 w-7 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-md border border-white"
+            onClick={onRemove}
+            data-testid={`button-remove-${component.id}`}
+          >
+            <Trash2 className="w-3 h-3" />
+          </Button>
         </div>
 
-        {/* Component Content */}
         {renderInput()}
 
-        {/* Controls - visible only when selected and not Alt-pressed */}
-        {isSelected && !isAltPressed && (
-          <div className="absolute -top-8 right-0 flex space-x-1">
-            {/* Drag Handle */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="p-1 h-6 w-6 bg-white border cursor-move"
-              onMouseDown={handleDragMouseDown}
-              title="Drag to move"
-            >
-              <Move className="h-3 w-3" />
-            </Button>
+        {/* Resize Handles - chỉ hiển thị cho các field có thể resize */}
+        {RESIZABLE_FIELD_TYPES.includes(component.type) && (
+          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+            {/* Corner handles */}
+            <div
+              className="absolute -top-1 -left-1 w-3 h-3 bg-white border-2 border-cyan-400 rounded-full cursor-nw-resize"
+              onMouseDown={(e) => handleResizeMouseDown(e, "nw")}
+            />
+            <div
+              className="absolute -top-1 -right-1 w-3 h-3 bg-white border-2 border-cyan-400 rounded-full cursor-ne-resize"
+              onMouseDown={(e) => handleResizeMouseDown(e, "ne")}
+            />
+            <div
+              className="absolute -bottom-1 -left-1 w-3 h-3 bg-white border-2 border-cyan-400 rounded-full cursor-sw-resize"
+              onMouseDown={(e) => handleResizeMouseDown(e, "sw")}
+            />
+            <div
+              className="absolute -bottom-1 -right-1 w-3 h-3 bg-white border-2 border-cyan-400 rounded-full cursor-se-resize"
+              onMouseDown={(e) => handleResizeMouseDown(e, "se")}
+            />
 
-            {/* Rotation Handle */}
-            {onRotate && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="p-1 h-6 w-6 bg-white border cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const currentRotation = component.rotation || 0;
-                  onRotate(component.id, (currentRotation + 15) % 360);
-                }}
-                title="Rotate 15 degrees"
-              >
-                <RotateCw className="h-3 w-3" />
-              </Button>
-            )}
-
-            {/* Delete Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              className="p-1 h-6 w-6 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600"
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemove();
-              }}
-              title="Delete component"
-            >
-              <Trash2 className="h-3 w-3" />
-            </Button>
+            {/* Edge handles */}
+            <div
+              className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border-2 border-cyan-400 rounded-full cursor-n-resize"
+              onMouseDown={(e) => handleResizeMouseDown(e, "n")}
+            />
+            <div
+              className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-white border-2 border-cyan-400 rounded-full cursor-s-resize"
+              onMouseDown={(e) => handleResizeMouseDown(e, "s")}
+            />
+            <div
+              className="absolute top-1/2 -left-1 transform -translate-y-1/2 w-3 h-3 bg-white border-2 border-cyan-400 rounded-full cursor-w-resize"
+              onMouseDown={(e) => handleResizeMouseDown(e, "w")}
+            />
+            <div
+              className="absolute top-1/2 -right-1 transform -translate-y-1/2 w-3 h-3 bg-white border-2 border-cyan-400 rounded-full cursor-e-resize"
+              onMouseDown={(e) => handleResizeMouseDown(e, "e")}
+            />
           </div>
         )}
-
-        {/* Resize Handles - visible only for resizable components when selected */}
-        {isSelected &&
-          !isAltPressed &&
-          RESIZABLE_FIELD_TYPES.includes(component.type) && (
-            <>
-              <div
-                className="absolute -bottom-2 -right-2 w-4 h-4 bg-primary border border-white rounded cursor-se-resize"
-                onMouseDown={(e) => handleResizeMouseDown(e, "se")}
-                title="Resize"
-              />
-              <div
-                className="absolute -top-2 -right-2 w-4 h-4 bg-primary border border-white rounded cursor-ne-resize"
-                onMouseDown={(e) => handleResizeMouseDown(e, "ne")}
-                title="Resize"
-              />
-              <div
-                className="absolute -bottom-2 -left-2 w-4 h-4 bg-primary border border-white rounded cursor-sw-resize"
-                onMouseDown={(e) => handleResizeMouseDown(e, "sw")}
-                title="Resize"
-              />
-              <div
-                className="absolute -top-2 -left-2 w-4 h-4 bg-primary border border-white rounded cursor-nw-resize"
-                onMouseDown={(e) => handleResizeMouseDown(e, "nw")}
-                title="Resize"
-              />
-              <div
-                className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary border border-white rounded cursor-n-resize"
-                onMouseDown={(e) => handleResizeMouseDown(e, "n")}
-                title="Resize"
-              />
-              <div
-                className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary border border-white rounded cursor-s-resize"
-                onMouseDown={(e) => handleResizeMouseDown(e, "s")}
-                title="Resize"
-              />
-              <div
-                className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary border border-white rounded cursor-e-resize"
-                onMouseDown={(e) => handleResizeMouseDown(e, "e")}
-                title="Resize"
-              />
-              <div
-                className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary border border-white rounded cursor-w-resize"
-                onMouseDown={(e) => handleResizeMouseDown(e, "w")}
-                title="Resize"
-              />
-            </>
-          )}
       </div>
     </div>
   );
@@ -1083,20 +1159,17 @@ export default function FormPreview({
   onUpdateComponent,
   zoom = 1,
   onSelectionStart,
-  isSelecting,
+  isSelecting = false,
   selectionBox,
 }: FormPreviewProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: "form-preview",
-    data: {
-      type: "form-preview",
-    },
   });
 
-  const [fieldValues, setFieldValues] = useState<Record<string, any>>({});
   const [isAltPressed, setIsAltPressed] = useState(false);
+  const [fieldValues, setFieldValues] = useState<Record<string, any>>({});
 
-  // Handle Alt key press/release for component selection mode
+  // Track Alt key for selection mode
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && !isAltPressed) {
@@ -1200,6 +1273,7 @@ export default function FormPreview({
                       <PreviewComponent
                         key={component.id}
                         component={component}
+                        isAltPressed={isAltPressed}
                         onRemove={() => onRemoveComponent(component.id)}
                         onMove={handleMoveComponent}
                         onResize={handleResizeComponent}
@@ -1212,7 +1286,6 @@ export default function FormPreview({
                           selectedComponentId !== component.id
                         }
                         zoom={zoom}
-                        isAltPressed={isAltPressed}
                         fieldValues={fieldValues}
                         onFieldChange={(componentId, value) =>
                           setFieldValues((prev) => ({
@@ -1248,8 +1321,10 @@ export default function FormPreview({
         ) : (
           <div
             ref={setNodeRef}
-            className={`w-full h-full min-h-[500px] bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center transition-colors ${
-              isOver ? "bg-primary/5 border-primary" : ""
+            className={`border-2 border-dashed rounded-lg p-4 h-full min-h-[500px] relative overflow-hidden transition-colors ${
+              isOver
+                ? "border-primary bg-primary/5"
+                : "border-border bg-muted/30"
             } ${isAltPressed ? "cursor-default" : "cursor-default"}`}
             data-testid="form-preview-area"
             onMouseDown={(e) => {
@@ -1257,18 +1332,9 @@ export default function FormPreview({
             }}
           >
             {components.length === 0 ? (
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <GripVertical className="w-8 h-8 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {imageFile ? "Add components to your form" : "Drop form components here"}
-                </h3>
-                <p className="text-gray-500 max-w-sm">
-                  {imageFile 
-                    ? "Drag components from the sidebar and position them on your background image."
-                    : "Drag form components from the left sidebar into this area to start building your form."
-                  }
+              <div className="flex items-center justify-center h-full">
+                <p className="text-muted-foreground text-sm">
+                  Drag components here to build your form
                 </p>
               </div>
             ) : (
@@ -1277,6 +1343,7 @@ export default function FormPreview({
                   <PreviewComponent
                     key={component.id}
                     component={component}
+                    isAltPressed={isAltPressed}
                     onRemove={() => onRemoveComponent(component.id)}
                     onMove={handleMoveComponent}
                     onResize={handleResizeComponent}
