@@ -1019,52 +1019,49 @@ function PreviewComponent({
                   
                   setIsRotating(true);
                   
-                  // First rotation
-                  const currentRotation = component.rotation || 0;
-                  onRotate(component.id, (currentRotation + 15) % 360);
+                  // Get component center position
+                  const componentEl = e.currentTarget.closest('.form-component') as HTMLElement;
+                  if (!componentEl) return;
                   
-                  // Delay before continuous rotation
-                  const rotateTimeout = setTimeout(() => {
-                    const rotateInterval = setInterval(() => {
-                      const currentRot = component.rotation || 0;
-                      onRotate(component.id, (currentRot + 5) % 360);
-                    }, 80);
+                  const componentRect = componentEl.getBoundingClientRect();
+                  const centerX = componentRect.left + componentRect.width / 2;
+                  const centerY = componentRect.top + componentRect.height / 2;
+                  
+                  // Initial mouse position and rotation
+                  const startMouseX = e.clientX;
+                  const startMouseY = e.clientY;
+                  const startRotation = component.rotation || 0;
+                  
+                  // Calculate initial angle from center to mouse
+                  const startAngle = Math.atan2(startMouseY - centerY, startMouseX - centerX) * (180 / Math.PI);
+                  
+                  const handleMouseMove = (moveEvent: MouseEvent) => {
+                    // Calculate current angle from center to mouse
+                    const currentAngle = Math.atan2(moveEvent.clientY - centerY, moveEvent.clientX - centerX) * (180 / Math.PI);
                     
-                    // Store interval reference to clear it later
-                    (e.currentTarget as any)._rotateInterval = rotateInterval;
-                  }, 500);
+                    // Calculate the angle difference
+                    let angleDiff = currentAngle - startAngle;
+                    
+                    // Normalize angle difference to -180 to 180
+                    while (angleDiff > 180) angleDiff -= 360;
+                    while (angleDiff < -180) angleDiff += 360;
+                    
+                    // Apply rotation
+                    const newRotation = (startRotation + angleDiff) % 360;
+                    onRotate(component.id, newRotation < 0 ? newRotation + 360 : newRotation);
+                  };
                   
-                  // Store timeout reference
-                  (e.currentTarget as any)._rotateTimeout = rotateTimeout;
-                }}
-                onMouseUp={(e) => {
-                  e.stopPropagation();
-                  setIsRotating(false);
+                  const handleMouseUp = () => {
+                    setIsRotating(false);
+                    document.removeEventListener('mousemove', handleMouseMove);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                    document.body.style.cursor = '';
+                  };
                   
-                  // Clear timeout and interval
-                  const target = e.currentTarget as any;
-                  if (target._rotateTimeout) {
-                    clearTimeout(target._rotateTimeout);
-                    target._rotateTimeout = null;
-                  }
-                  if (target._rotateInterval) {
-                    clearInterval(target._rotateInterval);
-                    target._rotateInterval = null;
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  setIsRotating(false);
-                  
-                  // Clear timeout and interval
-                  const target = e.currentTarget as any;
-                  if (target._rotateTimeout) {
-                    clearTimeout(target._rotateTimeout);
-                    target._rotateTimeout = null;
-                  }
-                  if (target._rotateInterval) {
-                    clearInterval(target._rotateInterval);
-                    target._rotateInterval = null;
-                  }
+                  // Set cursor and add listeners
+                  document.body.style.cursor = 'grabbing';
+                  document.addEventListener('mousemove', handleMouseMove);
+                  document.addEventListener('mouseup', handleMouseUp);
                 }}
                 title={isRotating ? "Rotating..." : "Click to rotate 15° or hold to rotate continuously"}
               >
