@@ -938,7 +938,15 @@ function PreviewComponent({
       };
 
   return (
-    <div className="relative group">
+    <div 
+      className="relative group"
+      style={{
+        padding: '40px 50px 20px 20px', // Larger padding to extend hover area around buttons
+        margin: '-40px -50px -20px -20px', // Negative margin to compensate
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       <div
         ref={setNodeRef}
         style={{
@@ -965,8 +973,6 @@ function PreviewComponent({
             onClick?.(component.id, e);
           }
         }}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
         data-testid={`preview-component-${component.id}`}
       >
         {/* Component Label */}
