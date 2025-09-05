@@ -986,7 +986,7 @@ function PreviewComponent({
         {/* Controls - always rendered but visibility controlled by CSS */}
         <div 
           className={`absolute -top-8 right-0 flex space-x-1 transition-opacity duration-200 ${
-            (isSelected || isAltPressed) 
+            isSelected 
               ? 'opacity-100' 
               : 'opacity-0 group-hover:opacity-100'
           }`}
@@ -1037,7 +1037,7 @@ function PreviewComponent({
         {/* Resize Handles - always rendered but visibility controlled by CSS */}
         {RESIZABLE_FIELD_TYPES.includes(component.type) && (
           <div className={`${
-            (isSelected || isAltPressed) 
+            isSelected 
               ? 'opacity-100' 
               : 'opacity-0 group-hover:opacity-100'
           } transition-opacity duration-200`}>
