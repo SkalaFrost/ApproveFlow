@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Bell, Plus, Upload, X } from "lucide-react";
 
 interface HeaderProps {
@@ -14,8 +15,11 @@ interface HeaderProps {
   formName?: string;
   formDescription?: string;
   imageFile?: File | null;
+  selectedWorkflowId?: string;
+  workflows?: Array<{ id: string; name: string; }>;
   onFormNameChange?: (value: string) => void;
   onFormDescriptionChange?: (value: string) => void;
+  onWorkflowChange?: (workflowId: string) => void;
   onImageUpload?: (file: File) => void;
   onImageRemove?: () => void;
   onSave?: () => void;
@@ -38,8 +42,11 @@ export default function Header({
   formName = "",
   formDescription = "",
   imageFile = null,
+  selectedWorkflowId = "",
+  workflows = [],
   onFormNameChange,
   onFormDescriptionChange,
+  onWorkflowChange,
   onImageUpload,
   onImageRemove,
   onSave,
@@ -95,6 +102,22 @@ export default function Header({
                   className="h-7 text-xs"
                   data-testid="input-form-description"
                 />
+              </div>
+              
+              <div className="w-44">
+                <Label htmlFor="header-workflow-select" className="text-xs mb-1 block">Workflow</Label>
+                <Select value={selectedWorkflowId} onValueChange={onWorkflowChange}>
+                  <SelectTrigger className="h-7 text-xs" data-testid="select-workflow">
+                    <SelectValue placeholder="Select workflow" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workflows.map((workflow) => (
+                      <SelectItem key={workflow.id} value={workflow.id}>
+                        {workflow.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               
               <div className="w-28">

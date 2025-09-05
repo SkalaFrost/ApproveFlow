@@ -79,29 +79,15 @@ export class MemStorage implements IStorage {
   }
 
   private seedData() {
-    // Create default admin user
-    const adminId = randomUUID();
-    const admin: User = {
-      id: adminId,
-      username: "admin",
-      email: "admin@approvalflow.com",
-      password: "admin123",
-      firstName: "John",
-      lastName: "Doe",
-      role: "administrator",
-      isActive: true,
-      createdAt: new Date(),
-    };
-    this.users.set(adminId, admin);
-
-    // Create default roles
+    // Create default roles first
     const adminRoleId = randomUUID();
     const adminRole: Role = {
       id: adminRoleId,
       name: "administrator",
       description: "Full system access",
-      permissions: { all: true },
+      permissions: ["all"],
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
     this.roles.set(adminRoleId, adminRole);
 
@@ -110,10 +96,76 @@ export class MemStorage implements IStorage {
       id: userRoleId,
       name: "user",
       description: "Standard user access",
-      permissions: { read: true, create: true },
+      permissions: ["read", "create"],
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
     this.roles.set(userRoleId, userRole);
+
+    // Create default admin user
+    const adminId = randomUUID();
+    const admin: User = {
+      id: adminId,
+      username: "admin",
+      email: "admin@approvalflow.com",
+      passwordHash: "admin123",
+      firstName: "John",
+      lastName: "Doe",
+      roleId: adminRoleId,
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(adminId, admin);
+
+    // Create default workflow with start and approved steps
+    const defaultWorkflowId = randomUUID();
+    const defaultWorkflow: Workflow = {
+      id: defaultWorkflowId,
+      name: "Default Approval Workflow",
+      description: "Simple two-step workflow: Start → Approved",
+      definition: {
+        steps: [
+          {
+            id: "step-start",
+            name: "Start",
+            type: "approval",
+            assigneeRole: "user",
+            position: { x: 100, y: 100 },
+            connections: ["step-approved"],
+            permissions: {
+              read: ["all"],
+              edit: ["all"]
+            }
+          },
+          {
+            id: "step-approved",
+            name: "Approved",
+            type: "approval", 
+            assigneeRole: "administrator",
+            position: { x: 100, y: 220 },
+            connections: [],
+            permissions: {
+              read: ["administrator", "user"],
+              edit: ["administrator"]
+            }
+          }
+        ],
+        triggers: {
+          formSubmitted: true
+        },
+        settings: {
+          autoStart: true,
+          allowReassign: false,
+          sendNotifications: true
+        }
+      },
+      isActive: true,
+      createdBy: adminId,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.workflows.set(defaultWorkflowId, defaultWorkflow);
   }
 
   // Users
@@ -134,9 +186,12 @@ export class MemStorage implements IStorage {
     const user: User = {
       ...insertUser,
       id,
-      role: insertUser.role || "user",
+      firstName: insertUser.firstName || null,
+      lastName: insertUser.lastName || null,
+      roleId: insertUser.roleId || null,
       isActive: insertUser.isActive ?? true,
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
     this.users.set(id, user);
     return user;
@@ -174,7 +229,9 @@ export class MemStorage implements IStorage {
       ...insertRole,
       id,
       description: insertRole.description || null,
+      permissions: insertRole.permissions || null,
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
     this.roles.set(id, role);
     return role;
@@ -210,6 +267,7 @@ export class MemStorage implements IStorage {
       description: insertForm.description || null,
       isActive: insertForm.isActive ?? true,
       workflowId: insertForm.workflowId || null,
+      createdBy: insertForm.createdBy || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -250,6 +308,7 @@ export class MemStorage implements IStorage {
       id,
       description: insertWorkflow.description || null,
       isActive: insertWorkflow.isActive ?? true,
+      createdBy: insertWorkflow.createdBy || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -288,9 +347,13 @@ export class MemStorage implements IStorage {
     const document: Document = {
       ...insertDocument,
       id,
+      content: insertDocument.content || null,
       status: insertDocument.status || "draft",
-      workflowId: insertDocument.workflowId || null,
       currentStep: insertDocument.currentStep || null,
+      submittedBy: insertDocument.submittedBy || null,
+      formId: insertDocument.formId || null,
+      workflowId: insertDocument.workflowId || null,
+      createdBy: insertDocument.createdBy || null,
       assignedTo: insertDocument.assignedTo || null,
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -336,8 +399,10 @@ export class MemStorage implements IStorage {
       id,
       status: insertApproval.status || "pending",
       comments: insertApproval.comments || null,
+      approvedAt: insertApproval.approvedAt || null,
       decidedAt: insertApproval.decidedAt || null,
       createdAt: new Date(),
+      updatedAt: new Date(),
     };
     this.approvals.set(id, approval);
     return approval;

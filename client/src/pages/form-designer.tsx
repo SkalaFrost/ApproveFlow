@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useParams } from "wouter";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import Header from "@/components/layout/header";
 import FormDesigner from "@/components/form-designer/form-designer";
 import FormPreviewModal from "@/components/form-designer/form-preview-modal";
@@ -16,15 +16,23 @@ export default function FormDesignerPage() {
   const [formName, setFormName] = useState("Untitled Form");
   const [formDescription, setFormDescription] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [selectedWorkflowId, setSelectedWorkflowId] = useState<string>("");
   const [currentComponents, setCurrentComponents] = useState<any[]>([]);
   const [showPreview, setShowPreview] = useState(false);
+
+  // Fetch workflows for selection
+  const { data: workflows = [] } = useQuery({
+    queryKey: ["/api/workflows"],
+    queryFn: () => fetch("/api/workflows").then(res => res.json()),
+  });
 
   const saveMutation = useMutation({
     mutationFn: (components: any[]) => {
       const formData = {
         name: formName,
         description: formDescription,
-        schema: components,
+        definition: components,
+        workflowId: selectedWorkflowId || null,
         createdBy: "current-user-id", // TODO: Replace with actual user ID
         isActive: true,
       };
@@ -103,8 +111,11 @@ export default function FormDesignerPage() {
         formName={formName}
         formDescription={formDescription}
         imageFile={imageFile}
+        selectedWorkflowId={selectedWorkflowId}
+        workflows={workflows}
         onFormNameChange={setFormName}
         onFormDescriptionChange={setFormDescription}
+        onWorkflowChange={setSelectedWorkflowId}
         onImageUpload={handleImageUpload}
         onImageRemove={handleImageRemove}
         onSave={handleSave}
@@ -120,6 +131,8 @@ export default function FormDesignerPage() {
             formName={formName}
             formDescription={formDescription}
             imageFile={imageFile}
+            selectedWorkflowId={selectedWorkflowId}
+            workflows={workflows}
           />
         </div>
       </main>

@@ -96,6 +96,14 @@ export interface FormComponent {
     height: number;
   };
   rotation?: number;
+  
+  // Workflow step permissions
+  stepPermissions?: {
+    [stepId: string]: {
+      read: boolean;
+      edit: boolean;
+    };
+  };
 }
 
 export interface FormSchema {

@@ -14,6 +14,8 @@ import type { FormComponent } from '@/types/form-designer';
 interface FormComponentPropertiesProps {
   component: FormComponent;
   allComponents?: FormComponent[];
+  selectedWorkflowId?: string;
+  workflows?: Array<{ id: string; name: string; definition: any; }>;
   onUpdate: (updates: Partial<FormComponent>) => void;
   onClose: () => void;
 }
@@ -21,6 +23,8 @@ interface FormComponentPropertiesProps {
 export default function FormComponentProperties({
   component,
   allComponents = [],
+  selectedWorkflowId,
+  workflows = [],
   onUpdate,
   onClose
 }: FormComponentPropertiesProps) {
@@ -76,7 +80,26 @@ export default function FormComponentProperties({
     onUpdate({ options: newOptions });
   };
 
+  const handleStepPermissionUpdate = (stepId: string, permission: 'read' | 'edit', value: boolean) => {
+    const currentPermissions = component.stepPermissions || {};
+    const stepPermissions = currentPermissions[stepId] || { read: true, edit: true };
+    
+    onUpdate({
+      stepPermissions: {
+        ...currentPermissions,
+        [stepId]: {
+          ...stepPermissions,
+          [permission]: value
+        }
+      }
+    });
+  };
+
   const needsOptions = component.type === 'select' || component.type === 'radio';
+  
+  // Get selected workflow details
+  const selectedWorkflow = workflows.find(w => w.id === selectedWorkflowId);
+  const workflowSteps = selectedWorkflow?.definition?.steps || [];
 
   return (
     <Card className="h-full flex flex-col">
@@ -163,6 +186,48 @@ export default function FormComponentProperties({
                   </Button>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Workflow Step Permissions */}
+        {selectedWorkflowId && workflowSteps.length > 0 && (
+          <div className="space-y-3">
+            <Separator />
+            <div>
+              <Label className="text-sm font-medium">Workflow Step Permissions</Label>
+              <p className="text-xs text-muted-foreground mt-1">
+                Configure field visibility and editability for each workflow step
+              </p>
+            </div>
+            
+            <div className="space-y-3">
+              {workflowSteps.map((step: any) => {
+                const stepPermissions = component.stepPermissions?.[step.id] || { read: true, edit: true };
+                return (
+                  <div key={step.id} className="border rounded-lg p-3 space-y-2">
+                    <div className="font-medium text-sm">{step.name}</div>
+                    <div className="space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id={`${step.id}-read`}
+                          checked={stepPermissions.read}
+                          onCheckedChange={(checked) => handleStepPermissionUpdate(step.id, 'read', checked)}
+                        />
+                        <Label htmlFor={`${step.id}-read`} className="text-xs">Can view this field</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Switch
+                          id={`${step.id}-edit`}
+                          checked={stepPermissions.edit}
+                          onCheckedChange={(checked) => handleStepPermissionUpdate(step.id, 'edit', checked)}
+                        />
+                        <Label htmlFor={`${step.id}-edit`} className="text-xs">Can edit this field</Label>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

@@ -20,6 +20,8 @@ interface FormDesignerProps {
   formName: string;
   formDescription: string;
   imageFile: File | null;
+  selectedWorkflowId?: string;
+  workflows?: Array<{ id: string; name: string; definition: any; }>;
 }
 
 /**
@@ -64,6 +66,8 @@ export default function FormDesigner({
   formName,
   formDescription,
   imageFile,
+  selectedWorkflowId,
+  workflows = [],
 }: FormDesignerProps) {
   const { toast } = useToast();
   const [components, setComponents] = useState<FormComponent[]>([]);
@@ -635,6 +639,8 @@ export default function FormDesigner({
                   <FormComponentProperties
                     component={selectedComponent}
                     allComponents={components}
+                    selectedWorkflowId={selectedWorkflowId}
+                    workflows={workflows}
                     onUpdate={(updates) =>
                       handleComponentUpdate(selectedComponentId, updates)
                     }
