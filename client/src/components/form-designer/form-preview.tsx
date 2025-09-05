@@ -388,26 +388,26 @@ function PreviewComponent({
         const currentColumns = component.columns || defaultColumns;
         const currentRows = component.rows || defaultRows;
 
-        // Auto-resize table container to match content exactly
-        const autoResizeTable = () => {
-          if (tableRef.current && !isResizing) {
-            const totalHeight = (component.rowHeights || []).reduce((sum, height) => sum + height, 0);
-            const totalWidth = (component.columnWidths || []).reduce((sum, width) => sum + width, 0);
-            
-            if (onUpdateComponent && totalHeight > 0 && totalWidth > 0) {
-              onUpdateComponent(component.id, {
-                size: {
-                  width: totalWidth,
-                  height: totalHeight
-                }
-              });
-            }
-          }
-        };
+        // Auto-resize table container to match content exactly (disabled to let container size control)
+        // const autoResizeTable = () => {
+        //   if (tableRef.current && !isResizing) {
+        //     const totalHeight = (component.rowHeights || []).reduce((sum, height) => sum + height, 0);
+        //     const totalWidth = (component.columnWidths || []).reduce((sum, width) => sum + width, 0);
+        //     
+        //     if (onUpdateComponent && totalHeight > 0 && totalWidth > 0) {
+        //       onUpdateComponent(component.id, {
+        //         size: {
+        //           width: totalWidth,
+        //           height: totalHeight
+        //         }
+        //       });
+        //     }
+        //   }
+        // };
 
-        React.useEffect(() => {
-          autoResizeTable();
-        }, [component.columns, component.rows, component.columnWidths, component.rowHeights]);
+        // React.useEffect(() => {
+        //   autoResizeTable();
+        // }, [component.columns, component.rows, component.columnWidths, component.rowHeights]);
 
         const updateTableData = (newColumns?: any[], newRows?: any[]) => {
           component.columns = newColumns || component.columns;
@@ -515,7 +515,7 @@ function PreviewComponent({
         const fixedHeader = component.fixedHeader || false;
 
         return (
-          <div ref={tableRef} className="inline-block relative w-full h-full">
+          <div ref={tableRef} className="block relative" style={{ width: '100%', height: '100%' }}>
             {/* Header Row */}
             {component.showHeader !== false && (
               <div 
@@ -740,12 +740,15 @@ function PreviewComponent({
           
           return (
             <div 
-              className="w-full h-full rounded border relative pl-8 pr-4 pt-8 pb-12"
+              className="w-full h-full rounded border relative"
               style={{ 
                 backgroundColor,
                 borderColor,
                 borderWidth: '1px',
-                borderStyle: 'solid'
+                borderStyle: 'solid',
+                width: '100%',
+                height: '100%',
+                padding: '32px 16px 48px 32px'  // padding top right bottom left
               }}
             >
               {/* Chart Title */}
