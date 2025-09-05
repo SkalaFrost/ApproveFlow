@@ -128,13 +128,23 @@ function PreviewComponent({
     ) as HTMLElement;
     if (!componentElement) return;
 
-    const rect = componentElement.getBoundingClientRect();
-    const offsetX = e.clientX - rect.left;
-    const offsetY = e.clientY - rect.top;
+    // Get initial component position
+    const startX = component.position.x;
+    const startY = component.position.y;
+    
+    // Get initial mouse position
+    const startMouseX = e.clientX;
+    const startMouseY = e.clientY;
 
     const handleDragMove = (e: MouseEvent) => {
-      const newX = (e.clientX - offsetX) / zoom;
-      const newY = (e.clientY - offsetY) / zoom;
+      // Calculate the distance moved
+      const deltaX = (e.clientX - startMouseX) / zoom;
+      const deltaY = (e.clientY - startMouseY) / zoom;
+      
+      // Apply the delta to the original position
+      const newX = Math.max(0, startX + deltaX);
+      const newY = Math.max(0, startY + deltaY);
+      
       onMove(component.id, newX, newY);
     };
 
@@ -1092,42 +1102,42 @@ function PreviewComponent({
               : 'opacity-0 group-hover:opacity-100'
           } transition-opacity duration-200`}>
               <div
-                className="absolute -bottom-2 -right-2 w-4 h-4 bg-primary border border-white rounded cursor-se-resize"
+                className="absolute -bottom-1 -right-1 w-2 h-2 bg-primary border border-white rounded cursor-se-resize"
                 onMouseDown={(e) => handleResizeMouseDown(e, "se")}
                 title="Resize"
               />
               <div
-                className="absolute -top-2 -right-2 w-4 h-4 bg-primary border border-white rounded cursor-ne-resize"
+                className="absolute -top-1 -right-1 w-2 h-2 bg-primary border border-white rounded cursor-ne-resize"
                 onMouseDown={(e) => handleResizeMouseDown(e, "ne")}
                 title="Resize"
               />
               <div
-                className="absolute -bottom-2 -left-2 w-4 h-4 bg-primary border border-white rounded cursor-sw-resize"
+                className="absolute -bottom-1 -left-1 w-2 h-2 bg-primary border border-white rounded cursor-sw-resize"
                 onMouseDown={(e) => handleResizeMouseDown(e, "sw")}
                 title="Resize"
               />
               <div
-                className="absolute -top-2 -left-2 w-4 h-4 bg-primary border border-white rounded cursor-nw-resize"
+                className="absolute -top-1 -left-1 w-2 h-2 bg-primary border border-white rounded cursor-nw-resize"
                 onMouseDown={(e) => handleResizeMouseDown(e, "nw")}
                 title="Resize"
               />
               <div
-                className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary border border-white rounded cursor-n-resize"
+                className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary border border-white rounded cursor-n-resize"
                 onMouseDown={(e) => handleResizeMouseDown(e, "n")}
                 title="Resize"
               />
               <div
-                className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-primary border border-white rounded cursor-s-resize"
+                className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary border border-white rounded cursor-s-resize"
                 onMouseDown={(e) => handleResizeMouseDown(e, "s")}
                 title="Resize"
               />
               <div
-                className="absolute -right-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary border border-white rounded cursor-e-resize"
+                className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-primary border border-white rounded cursor-e-resize"
                 onMouseDown={(e) => handleResizeMouseDown(e, "e")}
                 title="Resize"
               />
               <div
-                className="absolute -left-2 top-1/2 -translate-y-1/2 w-4 h-4 bg-primary border border-white rounded cursor-w-resize"
+                className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-primary border border-white rounded cursor-w-resize"
                 onMouseDown={(e) => handleResizeMouseDown(e, "w")}
                 title="Resize"
               />
