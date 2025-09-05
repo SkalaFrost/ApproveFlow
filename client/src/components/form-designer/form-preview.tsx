@@ -102,6 +102,7 @@ function PreviewComponent({
 }) {
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: `component-${component.id}`,
@@ -964,6 +965,8 @@ function PreviewComponent({
             onClick?.(component.id, e);
           }
         }}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         data-testid={`preview-component-${component.id}`}
       >
         {/* Component Label */}
@@ -974,8 +977,8 @@ function PreviewComponent({
         {/* Component Content */}
         {renderInput()}
 
-        {/* Controls - visible only when selected and not Alt-pressed */}
-        {isSelected && !isAltPressed && (
+        {/* Controls - visible when selected or hovered and not Alt-pressed */}
+        {(isSelected || isHovered) && !isAltPressed && (
           <div className="absolute -top-8 right-0 flex space-x-1">
             {/* Drag Handle */}
             <Button
@@ -1021,8 +1024,8 @@ function PreviewComponent({
           </div>
         )}
 
-        {/* Resize Handles - visible only for resizable components when selected */}
-        {isSelected &&
+        {/* Resize Handles - visible for resizable components when selected or hovered */}
+        {(isSelected || isHovered) &&
           !isAltPressed &&
           RESIZABLE_FIELD_TYPES.includes(component.type) && (
             <>
