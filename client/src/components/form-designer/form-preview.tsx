@@ -515,14 +515,15 @@ function PreviewComponent({
         const fixedHeader = component.fixedHeader || false;
 
         return (
-          <div ref={tableRef} className="block relative" style={{ width: '100%', height: '100%' }}>
+          <div ref={tableRef} className="block relative overflow-hidden" style={{ width: '100%', height: '100%' }}>
             {/* Header Row */}
             {component.showHeader !== false && (
               <div 
                 className={`grid gap-0 ${fixedHeader ? 'sticky top-0 z-20' : ''}`} 
                 style={{ 
-                  gridTemplateColumns: columnWidths.map(w => `${w}px`).join(' '),
-                  marginLeft: showRowNumbers ? '32px' : '0'
+                  gridTemplateColumns: `repeat(${currentColumns.length}, 1fr)`,
+                  marginLeft: showRowNumbers ? '32px' : '0',
+                  width: '100%'
                 }}
               >
                 {currentColumns.map((col, colIndex) => (
@@ -530,12 +531,16 @@ function PreviewComponent({
                     key={col.id} 
                     className="text-sm font-medium p-2 break-words overflow-wrap-anywhere"
                     style={{
-                      height: `${rowHeights[0]}px`,
+                      height: `${Math.min(rowHeights[0] || 40, component.size.height / (currentRows.length + 1))}px`,
                       backgroundColor: headerBgColor,
                       color: headerTextColor,
                       borderRight: colIndex < currentColumns.length - 1 ? borderCSS : 'none',
                       borderBottom: showBorders ? borderCSS : 'none',
-                      textAlign: (col as any).alignment || 'left'
+                      textAlign: (col as any).alignment || 'left',
+                      minWidth: 0,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
                     }} 
                   >
                     {editingColumn === col.id ? (
@@ -598,20 +603,25 @@ function PreviewComponent({
                   <div 
                     className="grid gap-0" 
                     style={{ 
-                      gridTemplateColumns: columnWidths.map(w => `${w}px`).join(' '),
-                      marginLeft: showRowNumbers ? '32px' : '0'
+                      gridTemplateColumns: `repeat(${currentColumns.length}, 1fr)`,
+                      marginLeft: showRowNumbers ? '32px' : '0',
+                      width: '100%'
                     }}
                   >
                     {currentColumns.map((col, colIndex) => (
                       <div 
                         key={col.id} 
-                        className="text-sm p-2 break-words overflow-wrap-anywhere"
+                        className="text-sm p-2"
                         style={{
-                          height: `${rowHeights[component.showHeader !== false ? rowIndex + 1 : rowIndex]}px`,
+                          height: `${Math.min(rowHeights[component.showHeader !== false ? rowIndex + 1 : rowIndex] || 40, component.size.height / (currentRows.length + 1))}px`,
                           backgroundColor: rowBgColor,
                           borderRight: colIndex < currentColumns.length - 1 ? borderCSS : 'none',
                           borderBottom: rowIndex < currentRows.length - 1 ? borderCSS : 'none',
-                          textAlign: (col as any).alignment || 'left'
+                          textAlign: (col as any).alignment || 'left',
+                          minWidth: 0,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
                         }}
                       >
                         {editingCell?.row === rowIndex && editingCell?.col === col.id ? (
@@ -652,47 +662,7 @@ function PreviewComponent({
               );
             })}
 
-            {/* Column resize handles */}
-            {columnWidths.slice(0, -1).map((_, colIndex) => {
-              const leftOffset = columnWidths.slice(0, colIndex + 1).reduce((sum, width) => sum + width, 0);
-              const totalHeight = rowHeights.reduce((sum, height) => sum + height, 0);
-              
-              return (
-                <div
-                  key={`col-resize-${colIndex}`}
-                  className="absolute bg-transparent hover:bg-blue-300 hover:opacity-50 cursor-col-resize z-10"
-                  style={{
-                    left: `${leftOffset - 2}px`,
-                    top: 0,
-                    width: '4px',
-                    height: `${totalHeight}px`
-                  }}
-                  onMouseDown={(e) => handleMouseDown(e, 'column', colIndex)}
-                  title="Drag to resize column"
-                />
-              );
-            })}
-
-            {/* Row resize handles */}
-            {(component.showHeader !== false ? rowHeights.slice(0, -1) : rowHeights.slice(0, -1)).map((_, rowIndex) => {
-              const topOffset = rowHeights.slice(0, rowIndex + 1).reduce((sum, height) => sum + height, 0);
-              const totalWidth = columnWidths.reduce((sum, width) => sum + width, 0);
-              
-              return (
-                <div
-                  key={`row-resize-${rowIndex}`}
-                  className="absolute bg-transparent hover:bg-blue-300 hover:opacity-50 cursor-row-resize z-10"
-                  style={{
-                    left: 0,
-                    top: `${topOffset - 2}px`,
-                    width: `${totalWidth}px`,
-                    height: '4px'
-                  }}
-                  onMouseDown={(e) => handleMouseDown(e, 'row', rowIndex)}
-                  title="Drag to resize row"
-                />
-              );
-            })}
+            {/* Resize handles removed - table now fits container size */}
           </div>
         );
 
