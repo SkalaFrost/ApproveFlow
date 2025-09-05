@@ -968,6 +968,10 @@ function PreviewComponent({
                 ? "z-20 shadow-lg border-cyan-300"
                 : "border-cyan-300 hover:border-cyan-400 z-10"
         }`}
+        onClick={(e) => {
+          // Always trigger selection when clicking on component
+          onClick?.(component.id, e);
+        }}
         onMouseDown={(e) => {
           // Chỉ cho phép selection, không drag khi click vào component body
           if (!isAltPressed) {
