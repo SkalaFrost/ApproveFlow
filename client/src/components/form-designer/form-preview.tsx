@@ -1019,28 +1019,51 @@ function PreviewComponent({
                   
                   setIsRotating(true);
                   
-                  // Continuous rotation while held
-                  const rotateInterval = setInterval(() => {
-                    const currentRotation = component.rotation || 0;
-                    onRotate(component.id, (currentRotation + 3) % 360);
-                  }, 50);
+                  // First rotation
+                  const currentRotation = component.rotation || 0;
+                  onRotate(component.id, (currentRotation + 15) % 360);
                   
-                  const handleMouseUp = () => {
-                    setIsRotating(false);
-                    clearInterval(rotateInterval);
-                    document.removeEventListener('mouseup', handleMouseUp);
-                    document.removeEventListener('mouseleave', handleMouseUp);
-                  };
+                  // Delay before continuous rotation
+                  const rotateTimeout = setTimeout(() => {
+                    const rotateInterval = setInterval(() => {
+                      const currentRot = component.rotation || 0;
+                      onRotate(component.id, (currentRot + 5) % 360);
+                    }, 80);
+                    
+                    // Store interval reference to clear it later
+                    (e.currentTarget as any)._rotateInterval = rotateInterval;
+                  }, 500);
                   
-                  document.addEventListener('mouseup', handleMouseUp);
-                  document.addEventListener('mouseleave', handleMouseUp);
+                  // Store timeout reference
+                  (e.currentTarget as any)._rotateTimeout = rotateTimeout;
                 }}
-                onClick={(e) => {
+                onMouseUp={(e) => {
                   e.stopPropagation();
-                  // Single click rotation if not already rotating
-                  if (!isRotating) {
-                    const currentRotation = component.rotation || 0;
-                    onRotate(component.id, (currentRotation + 15) % 360);
+                  setIsRotating(false);
+                  
+                  // Clear timeout and interval
+                  const target = e.currentTarget as any;
+                  if (target._rotateTimeout) {
+                    clearTimeout(target._rotateTimeout);
+                    target._rotateTimeout = null;
+                  }
+                  if (target._rotateInterval) {
+                    clearInterval(target._rotateInterval);
+                    target._rotateInterval = null;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  setIsRotating(false);
+                  
+                  // Clear timeout and interval
+                  const target = e.currentTarget as any;
+                  if (target._rotateTimeout) {
+                    clearTimeout(target._rotateTimeout);
+                    target._rotateTimeout = null;
+                  }
+                  if (target._rotateInterval) {
+                    clearInterval(target._rotateInterval);
+                    target._rotateInterval = null;
                   }
                 }}
                 title={isRotating ? "Rotating..." : "Click to rotate 15° or hold to rotate continuously"}
