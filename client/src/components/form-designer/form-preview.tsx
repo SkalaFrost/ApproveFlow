@@ -983,9 +983,14 @@ function PreviewComponent({
         {/* Component Content */}
         {renderInput()}
 
-        {/* Controls - visible when selected or hovered and not Alt-pressed */}
-        {(isSelected || isHovered) && !isAltPressed && (
-          <div className="absolute -top-8 right-0 flex space-x-1">
+        {/* Controls - always rendered but visibility controlled by CSS */}
+        <div 
+          className={`absolute -top-8 right-0 flex space-x-1 transition-opacity duration-200 ${
+            (isSelected || isAltPressed) 
+              ? 'opacity-100' 
+              : 'opacity-0 group-hover:opacity-100'
+          }`}
+        >
             {/* Drag Handle */}
             <Button
               variant="outline"
@@ -1027,14 +1032,15 @@ function PreviewComponent({
             >
               <Trash2 className="h-3 w-3" />
             </Button>
-          </div>
-        )}
+        </div>
 
-        {/* Resize Handles - visible for resizable components when selected or hovered */}
-        {(isSelected || isHovered) &&
-          !isAltPressed &&
-          RESIZABLE_FIELD_TYPES.includes(component.type) && (
-            <>
+        {/* Resize Handles - always rendered but visibility controlled by CSS */}
+        {RESIZABLE_FIELD_TYPES.includes(component.type) && (
+          <div className={`${
+            (isSelected || isAltPressed) 
+              ? 'opacity-100' 
+              : 'opacity-0 group-hover:opacity-100'
+          } transition-opacity duration-200`}>
               <div
                 className="absolute -bottom-2 -right-2 w-4 h-4 bg-primary border border-white rounded cursor-se-resize"
                 onMouseDown={(e) => handleResizeMouseDown(e, "se")}
@@ -1075,8 +1081,8 @@ function PreviewComponent({
                 onMouseDown={(e) => handleResizeMouseDown(e, "w")}
                 title="Resize"
               />
-            </>
-          )}
+          </div>
+        )}
       </div>
     </div>
   );
