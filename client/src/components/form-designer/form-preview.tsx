@@ -980,9 +980,13 @@ function PreviewComponent({
         }}
         data-testid={`preview-component-${component.id}`}
       >
-        {/* Component Label */}
-        <div className="absolute -top-6 left-0 text-xs text-muted-foreground bg-white px-1 rounded">
-          {component.label}
+        {/* Component Label - only show on hover */}
+        <div className={`absolute -top-6 left-0 text-xs text-muted-foreground bg-white px-1 rounded transition-opacity duration-200 ${
+          isSelected 
+            ? 'opacity-100' 
+            : 'opacity-0 group-hover:opacity-100'
+        }`}>
+          {component.type}_{component.id}
         </div>
 
         {/* Component Content */}
