@@ -12,6 +12,8 @@ import FormComponentProperties from "./form-component-properties";
 import type { FormComponent } from "@/types/form-designer";
 import { nanoid } from "nanoid";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { PanelLeftOpen, PanelLeftClose } from "lucide-react";
 
 interface FormDesignerProps {
   formId?: string;
@@ -73,6 +75,7 @@ export default function FormDesigner({
   const [components, setComponents] = useState<FormComponent[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draggedComponent, setDraggedComponent] = useState<any>(null);
+  const [propertiesPanelWidth, setPropertiesPanelWidth] = useState(320); // Default w-80 is 320px
   const [currentMousePosition, setCurrentMousePosition] = useState({
     x: 0,
     y: 0,
@@ -373,6 +376,11 @@ export default function FormDesigner({
     }
   };
 
+  const adjustPropertiesPanelWidth = (increment: number) => {
+    const newWidth = Math.max(240, Math.min(600, propertiesPanelWidth + increment));
+    setPropertiesPanelWidth(newWidth);
+  };
+
   const handleComponentClick = (id: string, event?: React.MouseEvent) => {
     if (event?.ctrlKey || event?.metaKey) {
       // Multi-select mode
@@ -635,7 +643,34 @@ export default function FormDesigner({
                 (c) => c.id === selectedComponentId,
               );
               return selectedComponent ? (
-                <div className="w-80 border-l bg-card ml-2">
+                <div 
+                  className="border-l bg-card ml-2 relative"
+                  style={{ width: `${propertiesPanelWidth}px` }}
+                >
+                  {/* Width adjustment controls */}
+                  <div className="absolute -left-2 top-4 z-10 flex flex-col space-y-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => adjustPropertiesPanelWidth(40)}
+                      className="h-6 w-6 p-0 bg-background"
+                      title="Increase panel width"
+                      data-testid="button-expand-properties"
+                    >
+                      <PanelLeftOpen className="h-3 w-3" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => adjustPropertiesPanelWidth(-40)}
+                      className="h-6 w-6 p-0 bg-background"
+                      title="Decrease panel width"
+                      data-testid="button-shrink-properties"
+                    >
+                      <PanelLeftClose className="h-3 w-3" />
+                    </Button>
+                  </div>
+                  
                   <FormComponentProperties
                     component={selectedComponent}
                     allComponents={components}
