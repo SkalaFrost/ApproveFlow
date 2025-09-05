@@ -88,6 +88,18 @@ export default function FormComponentProperties({
       </CardHeader>
       
       <CardContent className="flex-1 overflow-y-auto space-y-4">
+        {/* Component Info */}
+        <div className="space-y-3">
+          <div>
+            <Label>Component ID</Label>
+            <div className="px-3 py-2 bg-muted rounded-md text-sm font-mono">
+              {component.type}_{component.id}
+            </div>
+          </div>
+        </div>
+
+        <Separator />
+
         {/* Basic Properties */}
         <div className="space-y-3">
           <div>
