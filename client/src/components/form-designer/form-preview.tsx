@@ -103,6 +103,7 @@ function PreviewComponent({
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isRotating, setIsRotating] = useState(false);
 
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id: `component-${component.id}`,
@@ -1007,15 +1008,46 @@ function PreviewComponent({
               <Button
                 variant="outline"
                 size="sm"
-                className="p-1 h-6 w-6 bg-white border cursor-pointer"
+                className={`p-1 h-6 w-6 border cursor-pointer transition-colors ${
+                  isRotating 
+                    ? 'bg-primary text-primary-foreground border-primary' 
+                    : 'bg-white border-gray-300 hover:bg-gray-50'
+                }`}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  
+                  setIsRotating(true);
+                  
+                  // Continuous rotation while held
+                  const rotateInterval = setInterval(() => {
+                    const currentRotation = component.rotation || 0;
+                    onRotate(component.id, (currentRotation + 3) % 360);
+                  }, 50);
+                  
+                  const handleMouseUp = () => {
+                    setIsRotating(false);
+                    clearInterval(rotateInterval);
+                    document.removeEventListener('mouseup', handleMouseUp);
+                    document.removeEventListener('mouseleave', handleMouseUp);
+                  };
+                  
+                  document.addEventListener('mouseup', handleMouseUp);
+                  document.addEventListener('mouseleave', handleMouseUp);
+                }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  const currentRotation = component.rotation || 0;
-                  onRotate(component.id, (currentRotation + 15) % 360);
+                  // Single click rotation if not already rotating
+                  if (!isRotating) {
+                    const currentRotation = component.rotation || 0;
+                    onRotate(component.id, (currentRotation + 15) % 360);
+                  }
                 }}
-                title="Rotate 15 degrees"
+                title={isRotating ? "Rotating..." : "Click to rotate 15° or hold to rotate continuously"}
               >
-                <RotateCw className="h-3 w-3" />
+                <RotateCw className={`h-3 w-3 transition-transform ${
+                  isRotating ? 'animate-spin' : ''
+                }`} />
               </Button>
             )}
 
