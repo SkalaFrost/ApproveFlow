@@ -1008,7 +1008,7 @@ function PreviewComponent({
               <Button
                 variant="outline"
                 size="sm"
-                className={`p-1 h-6 w-6 border cursor-pointer transition-colors ${
+                className={`p-1 h-6 w-6 border cursor-crosshair transition-colors ${
                   isRotating 
                     ? 'bg-primary text-primary-foreground border-primary' 
                     : 'bg-white border-gray-300 hover:bg-gray-50'
@@ -1059,15 +1059,13 @@ function PreviewComponent({
                   };
                   
                   // Set cursor and add listeners
-                  document.body.style.cursor = 'grabbing';
+                  document.body.style.cursor = 'crosshair';
                   document.addEventListener('mousemove', handleMouseMove);
                   document.addEventListener('mouseup', handleMouseUp);
                 }}
                 title={isRotating ? "Rotating..." : "Click to rotate 15° or hold to rotate continuously"}
               >
-                <RotateCw className={`h-3 w-3 transition-transform ${
-                  isRotating ? 'animate-spin' : ''
-                }`} />
+                <RotateCw className="h-3 w-3" />
               </Button>
             )}
 
