@@ -232,7 +232,7 @@ export default function ComponentPalette({
   if (isCollapsed) {
     return (
       <TooltipProvider>
-        <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-30 flex flex-col items-center gap-1 bg-background/95 backdrop-blur-sm px-2 py-3 rounded-full shadow-lg border">
+        <div className="flex flex-col items-center gap-1 bg-background/95 backdrop-blur-sm px-2 py-3 rounded-full shadow-lg border">
           {formComponents.map((component) => (
             <DraggableComponent
               key={component.type}
@@ -261,7 +261,7 @@ export default function ComponentPalette({
 
   return (
     <TooltipProvider>
-      <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-30 flex flex-col items-center gap-1 bg-background/95 backdrop-blur-sm px-3 py-3 rounded-full shadow-lg border max-h-[80vh] overflow-y-auto">
+      <div className="flex flex-col items-center gap-1 bg-background/95 backdrop-blur-sm px-3 py-3 rounded-full shadow-lg border max-h-[80vh] overflow-y-auto">
         {formComponents.map((component) => (
           <DraggableComponentWrapper
             key={component.type}
