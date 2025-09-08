@@ -947,13 +947,11 @@ function PreviewComponent({
           } : { width: component.size.width, height: component.size.height }),
         }}
         className={`form-component absolute border-2 border-dashed rounded ${component.type === 'table' || component.type === 'chart' ? '' : 'p-3'} transition-colors ${
-          isSelected
+          isSelected || isMultiSelected
             ? "border-primary bg-primary/10 z-20 shadow-lg"
-            : isMultiSelected
-              ? "border-blue-400 bg-blue-50 z-15 shadow-md"
-              : isDragging || isResizing
-                ? "z-20 shadow-lg border-cyan-300"
-                : "border-cyan-300 hover:border-cyan-400 z-10"
+            : isDragging || isResizing
+              ? "z-20 shadow-lg border-cyan-300"
+              : "border-cyan-300 hover:border-cyan-400 z-10"
         }`}
         onClick={(e) => {
           // Always trigger selection when clicking on component
@@ -1346,10 +1344,7 @@ export default function FormPreview({
                     onRotate={handleRotateComponent}
                     onClick={onComponentClick}
                     isSelected={selectedComponentId === component.id}
-                    isMultiSelected={
-                      selectedComponentIds.includes(component.id) &&
-                      selectedComponentId !== component.id
-                    }
+                    isMultiSelected={selectedComponentIds.includes(component.id)}
                     zoom={zoom}
                     fieldValues={fieldValues}
                     onFieldChange={(componentId, value) =>

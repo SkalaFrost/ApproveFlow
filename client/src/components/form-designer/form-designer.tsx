@@ -655,6 +655,10 @@ export default function FormDesigner({
     if (selectedIds.length > 0) {
       setSelectedComponentIds(selectedIds);
       setSelectedComponentId(selectedIds[0]);
+    } else {
+      // Clear selection if no components found
+      setSelectedComponentIds([]);
+      setSelectedComponentId(null);
     }
     
     setIsSelecting(false);
