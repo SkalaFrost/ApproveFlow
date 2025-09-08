@@ -867,6 +867,26 @@ export default function FormComponentProperties({
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label htmlFor="width">Width</Label>
+              <Input
+                id="width"
+                type="number"
+                value={component.size.width}
+                onChange={(e) => handleSizeUpdate('width', parseInt(e.target.value) || 200)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="height">Height</Label>
+              <Input
+                id="height"
+                type="number"
+                value={component.size.height}
+                onChange={(e) => handleSizeUpdate('height', parseInt(e.target.value) || 40)}
+              />
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

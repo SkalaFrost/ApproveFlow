@@ -1071,6 +1071,54 @@ function PreviewComponent({
         </div>
 
         {/* Resize Handles - always rendered but visibility controlled by CSS */}
+        {RESIZABLE_FIELD_TYPES.includes(component.type) && (
+          <div className={`${
+            isSelected 
+              ? 'opacity-100' 
+              : 'opacity-0 group-hover:opacity-100'
+          } transition-opacity duration-200`}>
+              <div
+                className="absolute -bottom-1 -right-1 w-2 h-2 bg-primary border border-white rounded cursor-se-resize"
+                onMouseDown={(e) => handleResizeMouseDown(e, "se")}
+                title="Resize"
+              />
+              <div
+                className="absolute -top-1 -right-1 w-2 h-2 bg-primary border border-white rounded cursor-ne-resize"
+                onMouseDown={(e) => handleResizeMouseDown(e, "ne")}
+                title="Resize"
+              />
+              <div
+                className="absolute -bottom-1 -left-1 w-2 h-2 bg-primary border border-white rounded cursor-sw-resize"
+                onMouseDown={(e) => handleResizeMouseDown(e, "sw")}
+                title="Resize"
+              />
+              <div
+                className="absolute -top-1 -left-1 w-2 h-2 bg-primary border border-white rounded cursor-nw-resize"
+                onMouseDown={(e) => handleResizeMouseDown(e, "nw")}
+                title="Resize"
+              />
+              <div
+                className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary border border-white rounded cursor-n-resize"
+                onMouseDown={(e) => handleResizeMouseDown(e, "n")}
+                title="Resize"
+              />
+              <div
+                className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-primary border border-white rounded cursor-s-resize"
+                onMouseDown={(e) => handleResizeMouseDown(e, "s")}
+                title="Resize"
+              />
+              <div
+                className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-primary border border-white rounded cursor-e-resize"
+                onMouseDown={(e) => handleResizeMouseDown(e, "e")}
+                title="Resize"
+              />
+              <div
+                className="absolute -left-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-primary border border-white rounded cursor-w-resize"
+                onMouseDown={(e) => handleResizeMouseDown(e, "w")}
+                title="Resize"
+              />
+          </div>
+        )}
       </div>
     </div>
   );
