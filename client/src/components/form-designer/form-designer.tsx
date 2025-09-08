@@ -296,11 +296,32 @@ export default function FormDesigner({
       return;
     }
 
-    const dropCoords = getDropPosition(
-      currentMousePosition.x,
-      currentMousePosition.y,
-      droppableElement,
-    );
+    // Check if we have an image background with scaling
+    const imageContainer = document.querySelector('[data-testid="image-container"]') as HTMLElement | null;
+    let dropCoords: { x: number; y: number };
+
+    if (imageContainer) {
+      // When there's an image background, we need to account for scroll and scale
+      const containerRect = imageContainer.getBoundingClientRect();
+      const scrollLeft = imageContainer.scrollLeft;
+      const scrollTop = imageContainer.scrollTop;
+      
+      // Calculate relative position considering scroll
+      const relX = currentMousePosition.x - containerRect.left + scrollLeft;
+      const relY = currentMousePosition.y - containerRect.top + scrollTop;
+      
+      dropCoords = {
+        x: Math.max(0, relX),
+        y: Math.max(0, relY)
+      };
+    } else {
+      // Fallback to original calculation for no image background
+      dropCoords = getDropPosition(
+        currentMousePosition.x,
+        currentMousePosition.y,
+        droppableElement,
+      );
+    }
 
     // Thả component mới từ palette
     if (
