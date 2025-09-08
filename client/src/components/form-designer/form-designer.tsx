@@ -120,8 +120,21 @@ export default function FormDesigner({
         const formPreviewArea = document.querySelector('[data-testid="form-preview-area"]') as HTMLElement;
         if (formPreviewArea) {
           const rect = formPreviewArea.getBoundingClientRect();
-          const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
+          let x = e.clientX - rect.left;
+          let y = e.clientY - rect.top;
+          
+          // If there's an image background, adjust coordinates for scroll and scale
+          const imageContainer = document.querySelector('[data-testid="image-container"]') as HTMLElement | null;
+          if (imageContainer && imageFile) {
+            const containerRect = imageContainer.getBoundingClientRect();
+            const scrollLeft = imageContainer.scrollLeft;
+            const scrollTop = imageContainer.scrollTop;
+            
+            // Calculate relative position considering scroll
+            x = e.clientX - containerRect.left + scrollLeft;
+            y = e.clientY - containerRect.top + scrollTop;
+          }
+          
           setSelectionBox(prev => prev ? { ...prev, endX: x, endY: y } : null);
         }
       }
@@ -562,8 +575,20 @@ export default function FormDesigner({
   const handleSelectionStart = (e: React.MouseEvent) => {
     const formPreviewArea = e.currentTarget as HTMLElement;
     const rect = formPreviewArea.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
+    
+    // If there's an image background, adjust coordinates for scroll and scale
+    const imageContainer = document.querySelector('[data-testid="image-container"]') as HTMLElement | null;
+    if (imageContainer && imageFile) {
+      const containerRect = imageContainer.getBoundingClientRect();
+      const scrollLeft = imageContainer.scrollLeft;
+      const scrollTop = imageContainer.scrollTop;
+      
+      // Calculate relative position considering scroll
+      x = e.clientX - containerRect.left + scrollLeft;
+      y = e.clientY - containerRect.top + scrollTop;
+    }
     
     // Only start selection if not clicking on a component
     const target = e.target as HTMLElement;
