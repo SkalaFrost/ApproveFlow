@@ -605,15 +605,13 @@ export default function FormDesigner({
         onDragEnd={handleDragEnd}
       >
         <div className="flex-1 flex min-h-0 overflow-hidden">
-          {/* Palette Sidebar when no image background */}
-          {!imageFile && (
-            <div className="flex-shrink-0 w-36 mr-2">
-              <ComponentPalette
-                onToggleCollapse={setIsComponentPaletteCollapsed}
-                floating={false}
-              />
-            </div>
-          )}
+          {/* Palette Sidebar - show when no image background */}
+          <div className="flex-shrink-0 w-36 mr-2">
+            <ComponentPalette
+              onToggleCollapse={setIsComponentPaletteCollapsed}
+              floating={false}
+            />
+          </div>
 
           {/* Form Preview */}
           <div className="flex-1">

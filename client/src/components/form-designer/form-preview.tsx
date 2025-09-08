@@ -1238,7 +1238,7 @@ export default function FormPreview({
           <div className="h-full min-h-[500px] relative">
             <ImageBackground 
               file={imageFile}
-              componentPalette={imageFile && onToggleComponentPalette && (
+              componentPalette={onToggleComponentPalette && (
                 <ComponentPalette
                   onToggleCollapse={onToggleComponentPalette}
                   floating={true}
