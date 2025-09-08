@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Trash2, Move, BarChart3, GripVertical, RotateCw } from "lucide-react";
 import ImageBackground from "./image-background";
+import ComponentPalette from "./component-palette";
 import type { FormComponent } from "@/types/form-designer";
 
 interface FormPreviewProps {
@@ -34,6 +35,8 @@ interface FormPreviewProps {
     endX: number;
     endY: number;
   } | null;
+  isComponentPaletteCollapsed?: boolean;
+  onToggleComponentPalette?: (collapsed: boolean) => void;
 }
 
 // Danh sách các field type có thể resize
@@ -1133,6 +1136,8 @@ export default function FormPreview({
   onSelectionStart,
   isSelecting,
   selectionBox,
+  isComponentPaletteCollapsed = false,
+  onToggleComponentPalette,
 }: FormPreviewProps) {
   const { setNodeRef, isOver } = useDroppable({
     id: "form-preview",
@@ -1232,6 +1237,15 @@ export default function FormPreview({
         {imageFile ? (
           <div className="h-full min-h-[500px] relative">
             <ImageBackground file={imageFile}>
+              {/* Floating Component Palette */}
+              {imageFile && onToggleComponentPalette && (
+                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-20">
+                  <ComponentPalette
+                    onToggleCollapse={onToggleComponentPalette}
+                  />
+                </div>
+              )}
+
               <div
                 ref={setNodeRef}
                 className={`w-full h-full pointer-events-auto transition-colors ${

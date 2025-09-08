@@ -605,11 +605,6 @@ export default function FormDesigner({
         onDragEnd={handleDragEnd}
       >
         <div className="flex-1 flex min-h-0 overflow-hidden">
-          {/* Floating Palette */}
-          <ComponentPalette
-            onToggleCollapse={setIsComponentPaletteCollapsed}
-          />
-
           {/* Form Preview */}
           <div className="flex-1">
             <FormPreview
@@ -627,8 +622,19 @@ export default function FormDesigner({
               onSelectionStart={handleSelectionStart}
               isSelecting={isSelecting}
               selectionBox={selectionBox}
+              isComponentPaletteCollapsed={isComponentPaletteCollapsed}
+              onToggleComponentPalette={setIsComponentPaletteCollapsed}
             />
           </div>
+
+          {/* Fallback Palette when no image background */}
+          {!imageFile && (
+            <div className="flex-shrink-0 w-36 mr-2">
+              <ComponentPalette
+                onToggleCollapse={setIsComponentPaletteCollapsed}
+              />
+            </div>
+          )}
 
           {/* Properties Panel */}
           {selectedComponentId &&
