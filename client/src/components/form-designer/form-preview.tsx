@@ -583,7 +583,7 @@ function PreviewComponent({
             {/* Data Rows */}
             {currentRows.map((row, rowIndex) => {
               const isEvenRow = rowIndex % 2 === 0;
-              const rowBgColor = alternateRows ? (isEvenRow ? evenRowColor : oddRowColor) : '#ffffff';
+              const rowBgColor = alternateRows ? (isEvenRow ? evenRowColor : oddRowColor) : '#ffff8f';
               
               return (
                 <div key={rowIndex} className="relative">
