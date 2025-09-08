@@ -377,13 +377,42 @@ export default function FormDesigner({
       const compId = active.id as string;
       const offset = dragPointerOffset ?? { x: 0, y: 0 };
 
-      const x = Math.max(0, Math.round(dropCoords.x - offset.x));
-      const y = Math.max(0, Math.round(dropCoords.y - offset.y));
+      const newX = Math.max(0, Math.round(dropCoords.x - offset.x));
+      const newY = Math.max(0, Math.round(dropCoords.y - offset.y));
 
-      const newComponents = components.map((comp) =>
-        comp.id === compId ? { ...comp, position: { x, y } } : comp,
-      );
-      updateComponents(newComponents);
+      // Check if this component is part of a multi-selection
+      const isMultiSelected = selectedComponentIds.includes(compId) && selectedComponentIds.length > 1;
+      
+      if (isMultiSelected) {
+        // Move all selected components together
+        const draggedComponent = components.find(comp => comp.id === compId);
+        if (draggedComponent) {
+          // Calculate the movement delta
+          const deltaX = newX - draggedComponent.position.x;
+          const deltaY = newY - draggedComponent.position.y;
+          
+          // Apply delta to all selected components
+          const newComponents = components.map((comp) => {
+            if (selectedComponentIds.includes(comp.id)) {
+              return {
+                ...comp,
+                position: {
+                  x: Math.max(0, comp.position.x + deltaX),
+                  y: Math.max(0, comp.position.y + deltaY),
+                }
+              };
+            }
+            return comp;
+          });
+          updateComponents(newComponents);
+        }
+      } else {
+        // Single component move
+        const newComponents = components.map((comp) =>
+          comp.id === compId ? { ...comp, position: { x: newX, y: newY } } : comp,
+        );
+        updateComponents(newComponents);
+      }
     }
 
     setActiveId(null);
