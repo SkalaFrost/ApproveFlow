@@ -671,16 +671,6 @@ export default function FormDesigner({
                     >
                       <PanelLeftOpen className="h-3 w-3" />
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => adjustPropertiesPanelWidth(-40)}
-                      className="h-6 w-6 p-0 bg-background"
-                      title="Decrease panel width"
-                      data-testid="button-shrink-properties"
-                    >
-                      <PanelLeftClose className="h-3 w-3" />
-                    </Button>
                   </div>
                   
                   <FormComponentProperties
