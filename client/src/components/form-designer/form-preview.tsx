@@ -938,6 +938,7 @@ function PreviewComponent({
         ref={setNodeRef}
         style={{
           ...style,
+          backgroundColor: '#ffff8f',
           ...(component.type === 'table' || component.type === 'chart' ? { 
             width: component.size.width, 
             height: component.size.height,
@@ -945,7 +946,7 @@ function PreviewComponent({
             minHeight: 'auto' 
           } : { width: component.size.width, height: component.size.height }),
         }}
-        className={`form-component absolute bg-white border-2 border-dashed rounded ${component.type === 'table' || component.type === 'chart' ? '' : 'p-3'} transition-colors ${
+        className={`form-component absolute border-2 border-dashed rounded ${component.type === 'table' || component.type === 'chart' ? '' : 'p-3'} transition-colors ${
           isSelected
             ? "border-primary bg-primary/10 z-20 shadow-lg"
             : isMultiSelected
