@@ -5,9 +5,10 @@ import { ZoomIn, ZoomOut, RotateCcw, Move } from 'lucide-react';
 interface ImageBackgroundProps {
   file: File;
   children?: React.ReactNode;
+  componentPalette?: React.ReactNode;
 }
 
-export default function ImageBackground({ file, children }: ImageBackgroundProps) {
+export default function ImageBackground({ file, children, componentPalette }: ImageBackgroundProps) {
   const [scale, setScale] = useState<number>(1);
   const [minScale, setMinScale] = useState<number>(1); // Minimum allowed scale
   const [imageUrl, setImageUrl] = useState<string>('');
@@ -159,6 +160,13 @@ export default function ImageBackground({ file, children }: ImageBackgroundProps
         </div>
       </div>
       
+      {/* Component Palette - Fixed position over the scroll area */}
+      {componentPalette && (
+        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30">
+          {componentPalette}
+        </div>
+      )}
+
       {/* Controls - Fixed position over the scroll area */}
       <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center gap-1 bg-background/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg border">
         <Button

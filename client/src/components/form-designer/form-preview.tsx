@@ -1236,16 +1236,14 @@ export default function FormPreview({
       <div className="flex-1">
         {imageFile ? (
           <div className="h-full min-h-[500px] relative">
-            {/* Floating Component Palette - Fixed to viewport */}
-            {imageFile && onToggleComponentPalette && (
-              <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-30">
+            <ImageBackground 
+              file={imageFile}
+              componentPalette={imageFile && onToggleComponentPalette && (
                 <ComponentPalette
                   onToggleCollapse={onToggleComponentPalette}
                 />
-              </div>
-            )}
-
-            <ImageBackground file={imageFile}>
+              )}
+            >
               <div
                 ref={setNodeRef}
                 className={`w-full h-full pointer-events-auto transition-colors ${
