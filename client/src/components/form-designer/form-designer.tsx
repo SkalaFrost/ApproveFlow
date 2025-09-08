@@ -467,9 +467,15 @@ export default function FormDesigner({
         setSelectedComponentIds(rangeIds);
       }
     } else {
-      // Single select
-      setSelectedComponentId(id);
-      setSelectedComponentIds([]);
+      // If clicking on an already selected component in multi-selection, keep the selection
+      if (selectedComponentIds.includes(id) && selectedComponentIds.length > 1) {
+        // Just set this as the primary selected component but keep multi-selection
+        setSelectedComponentId(id);
+      } else {
+        // Single select
+        setSelectedComponentId(id);
+        setSelectedComponentIds([]);
+      }
     }
   };
 
