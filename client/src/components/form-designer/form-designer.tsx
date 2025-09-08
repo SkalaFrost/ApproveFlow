@@ -660,18 +660,34 @@ export default function FormDesigner({
                   style={{ width: `${propertiesPanelWidth}px` }}
                 >
                   {/* Width adjustment controls */}
-                  <div className="absolute -left-2 top-4 z-10 flex flex-col space-y-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => adjustPropertiesPanelWidth(40)}
-                      className="h-6 w-6 p-0 bg-background"
-                      title="Increase panel width"
-                      data-testid="button-expand-properties"
-                    >
-                      <PanelLeftOpen className="h-3 w-3" />
-                    </Button>
-                  </div>
+                  {/* Resize handle */}
+                  <div 
+                    className="absolute -left-2 top-0 bottom-0 w-2 cursor-col-resize hover:bg-blue-200 hover:bg-opacity-50 transition-colors z-10"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      const startX = e.clientX;
+                      const startWidth = propertiesPanelWidth;
+                      
+                      const handleMouseMove = (e: MouseEvent) => {
+                        const deltaX = startX - e.clientX;
+                        const newWidth = Math.max(300, Math.min(600, startWidth + deltaX));
+                        setPropertiesPanelWidth(newWidth);
+                      };
+                      
+                      const handleMouseUp = () => {
+                        document.removeEventListener('mousemove', handleMouseMove);
+                        document.removeEventListener('mouseup', handleMouseUp);
+                        document.body.style.cursor = '';
+                        document.body.style.userSelect = '';
+                      };
+                      
+                      document.addEventListener('mousemove', handleMouseMove);
+                      document.addEventListener('mouseup', handleMouseUp);
+                      document.body.style.cursor = 'col-resize';
+                      document.body.style.userSelect = 'none';
+                    }}
+                    title="Drag to resize panel"
+                  />
                   
                   <FormComponentProperties
                     component={selectedComponent}
