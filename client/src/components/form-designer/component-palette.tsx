@@ -221,7 +221,7 @@ export default function ComponentPalette({
 }: ComponentPaletteProps = {}) {
   return (
     <TooltipProvider>
-      <div className="flex flex-col items-center gap-1 bg-background/95 backdrop-blur-sm px-2 py-3 rounded-full shadow-lg border">
+      <div className="flex flex-col items-center gap-1 bg-white dark:bg-gray-800 px-2 py-3 rounded-full shadow-lg border">
         {formComponents.map((component) => (
           <DraggableComponent
             key={component.type}

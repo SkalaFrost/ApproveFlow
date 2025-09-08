@@ -168,7 +168,7 @@ export default function ImageBackground({ file, children, componentPalette }: Im
       )}
 
       {/* Controls - Fixed position over the scroll area */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center gap-1 bg-background/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg border">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center gap-1 bg-white dark:bg-gray-800 px-3 py-1.5 rounded-full shadow-lg border">
         <Button
           size="sm"
           variant="ghost"
