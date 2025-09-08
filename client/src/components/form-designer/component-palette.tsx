@@ -215,43 +215,24 @@ export default function ComponentPalette({
   onToggleCollapse,
   floating = false,
 }: ComponentPaletteProps = {}) {
-  if (floating) {
-    // Floating mode for when there's an image background
-    return (
-      <TooltipProvider>
-        <div className="flex flex-col items-center gap-1 bg-white/95 px-2 py-3 rounded-full shadow-xl border-2 border-gray-900">
-          {formComponents.map((component) => (
-            <DraggableComponent
-              key={component.type}
-              type={component.type}
-              label={component.label}
-              icon={component.icon}
-              small
-            />
-          ))}
-        </div>
-      </TooltipProvider>
-    );
+  // Only show in floating mode when there's an image background
+  if (!floating) {
+    return null;
   }
 
-  // Sidebar mode for when there's no image background
   return (
     <TooltipProvider>
-      <Card className="h-full flex flex-col w-36">
-        <CardContent className="flex-1 overflow-y-auto p-2">
-          <div className="flex flex-col gap-2">
-            {formComponents.map((component) => (
-              <DraggableComponent
-                key={component.type}
-                type={component.type}
-                label={component.label}
-                icon={component.icon}
-                small={false}
-              />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col items-center gap-1 bg-white/95 px-2 py-3 rounded-full shadow-xl border-2 border-gray-900">
+        {formComponents.map((component) => (
+          <DraggableComponent
+            key={component.type}
+            type={component.type}
+            label={component.label}
+            icon={component.icon}
+            small
+          />
+        ))}
+      </div>
     </TooltipProvider>
   );
 }
