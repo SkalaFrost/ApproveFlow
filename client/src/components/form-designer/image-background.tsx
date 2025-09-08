@@ -168,7 +168,7 @@ export default function ImageBackground({ file, children, componentPalette }: Im
       )}
 
       {/* Controls - Fixed position over the scroll area */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center gap-1 bg-gray-900/90 px-3 py-1.5 rounded-full shadow-lg border border-gray-600">
+      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-30 flex items-center gap-1 bg-white/95 px-3 py-1.5 rounded-full shadow-xl border-2 border-gray-900">
         <Button
           size="sm"
           variant="ghost"
@@ -179,7 +179,7 @@ export default function ImageBackground({ file, children, componentPalette }: Im
         >
           <ZoomOut className="w-3.5 h-3.5" />
         </Button>
-        <span className="text-sm font-medium min-w-[3rem] text-center px-2 text-white">
+        <span className="text-sm font-medium min-w-[3rem] text-center px-2 text-gray-900">
           {Math.round(scale * 100)}%
         </span>
         <Button
