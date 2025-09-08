@@ -638,15 +638,18 @@ export default function FormDesigner({
     const minY = Math.min(startY, endY);
     const maxY = Math.max(startY, endY);
     
-    // Find components within selection box
+    // Find components that intersect with selection box
     const selectedIds = components.filter(component => {
       const compX = component.position.x;
       const compY = component.position.y;
       const compWidth = component.size.width;
       const compHeight = component.size.height;
       
-      return compX >= minX && compY >= minY && 
-             compX + compWidth <= maxX && compY + compHeight <= maxY;
+      // Check if component intersects with selection box
+      return !(compX + compWidth < minX || 
+               compX > maxX || 
+               compY + compHeight < minY || 
+               compY > maxY);
     }).map(comp => comp.id);
     
     if (selectedIds.length > 0) {
