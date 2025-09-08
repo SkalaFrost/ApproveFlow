@@ -104,7 +104,7 @@ function DraggableComponent({
             style={style}
             {...listeners}
             {...attributes}
-            className="drag-handle p-2 border border-border rounded-md bg-accent/30 hover:bg-accent/50 transition-colors cursor-grab flex items-center justify-center w-10 h-10"
+            className="drag-handle p-2 border border-gray-300 rounded-md bg-blue-50 hover:bg-blue-100 transition-colors cursor-grab flex items-center justify-center w-10 h-10"
             data-testid={`component-${type}`}
           >
             <Icon className="w-4 h-4" />
@@ -177,7 +177,7 @@ function DraggableComponentWrapper({
             style={style}
             {...listeners}
             {...attributes}
-            className="drag-handle p-2 border border-border rounded-md bg-accent/30 hover:bg-accent/50 transition-colors cursor-grab flex items-center space-x-2 min-w-[120px]"
+            className="drag-handle p-2 border border-gray-300 rounded-md bg-blue-50 hover:bg-blue-100 transition-colors cursor-grab flex items-center space-x-2 min-w-[120px]"
             data-testid={`component-${type}-expanded`}
           >
             <Icon className="w-4 h-4" />
@@ -199,7 +199,7 @@ function DraggableComponentWrapper({
           style={style}
           {...listeners}
           {...attributes}
-          className="drag-handle p-2 border border-border rounded-md bg-accent/30 hover:bg-accent/50 transition-colors cursor-grab flex items-center justify-center w-10 h-10"
+          className="drag-handle p-2 border border-gray-300 rounded-md bg-blue-50 hover:bg-blue-100 transition-colors cursor-grab flex items-center justify-center w-10 h-10"
           data-testid={`component-${type}`}
         >
           <Icon className="w-4 h-4" />
