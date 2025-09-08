@@ -632,6 +632,7 @@ export default function FormDesigner({
             <div className="flex-shrink-0 w-36 mr-2">
               <ComponentPalette
                 onToggleCollapse={setIsComponentPaletteCollapsed}
+                floating={false}
               />
             </div>
           )}

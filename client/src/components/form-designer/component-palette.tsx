@@ -118,23 +118,17 @@ function DraggableComponent({
   }
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <div
-          ref={setNodeRef}
-          style={style}
-          {...listeners}
-          {...attributes}
-          className="drag-handle p-3 border border-border rounded-md bg-accent/30 hover:bg-accent/50 transition-colors cursor-grab flex items-center justify-center w-full h-10"
-          data-testid={`component-${type}`}
-        >
-          <Icon className="w-4 h-4" />
-        </div>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>{label}</p>
-      </TooltipContent>
-    </Tooltip>
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className="drag-handle p-2 border border-gray-300 rounded-md bg-blue-50 hover:bg-blue-100 transition-colors cursor-grab flex items-center space-x-2 w-full h-10"
+      data-testid={`component-${type}`}
+    >
+      <Icon className="w-4 h-4" />
+      <span className="text-xs font-medium truncate">{label}</span>
+    </div>
   );
 }
 
@@ -214,24 +208,50 @@ function DraggableComponentWrapper({
 
 interface ComponentPaletteProps {
   onToggleCollapse?: (isCollapsed: boolean) => void;
+  floating?: boolean;
 }
 
 export default function ComponentPalette({
   onToggleCollapse,
+  floating = false,
 }: ComponentPaletteProps = {}) {
+  if (floating) {
+    // Floating mode for when there's an image background
+    return (
+      <TooltipProvider>
+        <div className="flex flex-col items-center gap-1 bg-white/95 px-2 py-3 rounded-full shadow-xl border-2 border-gray-900">
+          {formComponents.map((component) => (
+            <DraggableComponent
+              key={component.type}
+              type={component.type}
+              label={component.label}
+              icon={component.icon}
+              small
+            />
+          ))}
+        </div>
+      </TooltipProvider>
+    );
+  }
+
+  // Sidebar mode for when there's no image background
   return (
     <TooltipProvider>
-      <div className="flex flex-col items-center gap-1 bg-white/95 px-2 py-3 rounded-full shadow-xl border-2 border-gray-900">
-        {formComponents.map((component) => (
-          <DraggableComponent
-            key={component.type}
-            type={component.type}
-            label={component.label}
-            icon={component.icon}
-            small
-          />
-        ))}
-      </div>
+      <Card className="h-full flex flex-col w-36">
+        <CardContent className="flex-1 overflow-y-auto p-2">
+          <div className="flex flex-col gap-2">
+            {formComponents.map((component) => (
+              <DraggableComponent
+                key={component.type}
+                type={component.type}
+                label={component.label}
+                icon={component.icon}
+                small={false}
+              />
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </TooltipProvider>
   );
 }

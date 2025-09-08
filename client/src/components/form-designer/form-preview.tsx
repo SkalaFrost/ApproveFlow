@@ -1241,6 +1241,7 @@ export default function FormPreview({
               componentPalette={imageFile && onToggleComponentPalette && (
                 <ComponentPalette
                   onToggleCollapse={onToggleComponentPalette}
+                  floating={true}
                 />
               )}
             >
