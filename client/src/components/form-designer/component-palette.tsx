@@ -170,31 +170,45 @@ function DraggableComponentWrapper({
 
   if (isExpanded) {
     return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        {...listeners}
-        {...attributes}
-        className="drag-handle p-2 border border-border rounded-md bg-accent/30 hover:bg-accent/50 transition-colors cursor-grab flex items-center space-x-2 w-full"
-        data-testid={`component-${type}-expanded`}
-      >
-        <Icon className="w-4 h-4" />
-        <span className="text-xs font-medium truncate">{label}</span>
-      </div>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div
+            ref={setNodeRef}
+            style={style}
+            {...listeners}
+            {...attributes}
+            className="drag-handle p-2 border border-border rounded-md bg-accent/30 hover:bg-accent/50 transition-colors cursor-grab flex items-center space-x-2 min-w-[120px]"
+            data-testid={`component-${type}-expanded`}
+          >
+            <Icon className="w-4 h-4" />
+            <span className="text-xs font-medium truncate">{label}</span>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent side="right">
+          <p>{label}</p>
+        </TooltipContent>
+      </Tooltip>
     );
   }
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...listeners}
-      {...attributes}
-      className="drag-handle p-2 border border-border rounded-md bg-accent/30 hover:bg-accent/50 transition-colors cursor-grab flex items-center justify-center w-full h-10"
-      data-testid={`component-${type}`}
-    >
-      <Icon className="w-4 h-4" />
-    </div>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div
+          ref={setNodeRef}
+          style={style}
+          {...listeners}
+          {...attributes}
+          className="drag-handle p-2 border border-border rounded-md bg-accent/30 hover:bg-accent/50 transition-colors cursor-grab flex items-center justify-center w-10 h-10"
+          data-testid={`component-${type}`}
+        >
+          <Icon className="w-4 h-4" />
+        </div>
+      </TooltipTrigger>
+      <TooltipContent side="right">
+        <p>{label}</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -218,71 +232,58 @@ export default function ComponentPalette({
   if (isCollapsed) {
     return (
       <TooltipProvider>
-        <Card className="h-full flex flex-col w-12">
-          <CardContent className="flex-1 overflow-y-auto p-2">
-            <div className="flex flex-col gap-1 items-center">
-              {formComponents.map((component) => (
-                <DraggableComponent
-                  key={component.type}
-                  type={component.type}
-                  label={component.label}
-                  icon={component.icon}
-                  small
-                />
-              ))}
-            </div>
-          </CardContent>
-
-          <div className="flex-shrink-0 p-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleCollapse}
-              className="h-8 w-full p-0 flex items-center justify-center"
-              data-testid="toggle-palette-collapse"
-              aria-label="Expand palette"
-              title="Expand"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-          </div>
-        </Card>
+        <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-30 flex flex-col items-center gap-1 bg-background/95 backdrop-blur-sm px-2 py-3 rounded-full shadow-lg border">
+          {formComponents.map((component) => (
+            <DraggableComponent
+              key={component.type}
+              type={component.type}
+              label={component.label}
+              icon={component.icon}
+              small
+            />
+          ))}
+          <div className="w-px h-4 bg-border my-1"></div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleCollapse}
+            className="h-8 w-8 p-0 flex items-center justify-center"
+            data-testid="toggle-palette-collapse"
+            aria-label="Expand palette"
+            title="Expand"
+          >
+            <ChevronRight className="w-4 h-4" />
+          </Button>
+        </div>
       </TooltipProvider>
     );
   }
 
   return (
     <TooltipProvider>
-      <Card className="h-full flex flex-col w-36">
-        {/* header intentionally left empty to remove title text */}
-        <CardContent className="flex-1 overflow-y-auto p-2">
-          <div className="flex flex-col gap-2">
-            {formComponents.map((component) => (
-              <DraggableComponentWrapper
-                key={component.type}
-                type={component.type}
-                label={component.label}
-                icon={component.icon}
-                isExpanded={isExpanded}
-              />
-            ))}
-          </div>
-        </CardContent>
-
-        <div className="flex-shrink-0 p-2 border-t border-border">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleCollapse}
-            className="h-8 w-full p-0 flex items-center justify-center"
-            data-testid="toggle-palette-collapse"
-            aria-label="Collapse palette"
-            title="Collapse"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-        </div>
-      </Card>
+      <div className="fixed left-4 top-1/2 transform -translate-y-1/2 z-30 flex flex-col items-center gap-1 bg-background/95 backdrop-blur-sm px-3 py-3 rounded-full shadow-lg border max-h-[80vh] overflow-y-auto">
+        {formComponents.map((component) => (
+          <DraggableComponentWrapper
+            key={component.type}
+            type={component.type}
+            label={component.label}
+            icon={component.icon}
+            isExpanded={isExpanded}
+          />
+        ))}
+        <div className="w-px h-4 bg-border my-1"></div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleCollapse}
+          className="h-8 w-8 p-0 flex items-center justify-center"
+          data-testid="toggle-palette-collapse"
+          aria-label="Collapse palette"
+          title="Collapse"
+        >
+          <ChevronLeft className="w-4 h-4" />
+        </Button>
+      </div>
     </TooltipProvider>
   );
 }

@@ -605,16 +605,10 @@ export default function FormDesigner({
         onDragEnd={handleDragEnd}
       >
         <div className="flex-1 flex min-h-0 overflow-hidden">
-          {/* Palette */}
-          <div
-            className={`flex-shrink-0 transition-all duration-300 ${
-              isComponentPaletteCollapsed ? "w-12 mr-2" : "w-36 mr-2"
-            }`}
-          >
-            <ComponentPalette
-              onToggleCollapse={setIsComponentPaletteCollapsed}
-            />
-          </div>
+          {/* Floating Palette */}
+          <ComponentPalette
+            onToggleCollapse={setIsComponentPaletteCollapsed}
+          />
 
           {/* Form Preview */}
           <div className="flex-1">
