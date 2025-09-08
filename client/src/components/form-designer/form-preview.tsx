@@ -1327,8 +1327,8 @@ export default function FormPreview({
                 </h3>
                 <p className="text-gray-500 max-w-sm">
                   {imageFile 
-                    ? "Drag components from the sidebar and position them on your background image."
-                    : "Drag form components from the left sidebar into this area to start building your form."
+                    ? "Use the floating component palette to add and position components on your background image."
+                    : "Upload a background image to enable the floating component palette and start building your form."
                   }
                 </p>
               </div>
